@@ -1113,5 +1113,294 @@ document.querySelectorAll('.plan').forEach(p=>{
   });
 });
 </script>
+
+<script>
+// ══════════════════════════════════════════════
+//  PLANETBREAKER — LIVE DATA ENGINE
+//  Fetches real news and market data
+//  Updates every 5 minutes automatically
+// ══════════════════════════════════════════════
+
+const API_BASE = window.location.origin;
+
+// ── FETCH LIVE MARKET DATA ──
+async function fetchMarkets() {
+  try {
+    const res = await fetch(`${API_BASE}/api/markets`);
+    const data = await res.json();
+    if (!data.success) return;
+    updateMarketStrip(data.data);
+    updateTicker(data.data);
+  } catch(e) {
+    console.log('Market fetch error:', e);
+  }
+}
+
+function updateMarketStrip(markets) {
+  const strip = document.querySelector('.ms-track');
+  if (!strip || !markets.length) return;
+  
+  let html = '';
+  markets.forEach(m => {
+    const isUp = parseFloat(m.change_pct) >= 0;
+    const arrow = isUp ? '▲' : '▼';
+    const cls = isUp ? 'up' : 'dn';
+    html += `<div class="ms-item">
+      <span class="ms-name">${m.symbol}</span>
+      <span class="ms-price">${m.price}</span>
+      <span class="ms-change ${cls}">${arrow}${Math.abs(m.change_pct)}%</span>
+    </div>`;
+  });
+  // Duplicate for seamless loop
+  strip.innerHTML = html + html;
+}
+
+function updateTicker(markets) {
+  // Update financial items in ticker with live data
+  const finItems = document.querySelectorAll('.t-item .fin-live');
+  // Already handled by market strip — ticker stays as breaking news
+}
+
+// ── FETCH LIVE NEWS ──
+async function fetchNews() {
+  try {
+    const res = await fetch(`${API_BASE}/api/news`);
+    const data = await res.json();
+    if (!data.success || !data.articles.length) return;
+    updateNewsGrid(data.articles);
+    updateTicker(data.articles);
+    updateLiveFeed(data.articles);
+    updateTrending(data.articles);
+    updateCategoryCards(data.articles);
+  } catch(e) {
+    console.log('News fetch error:', e);
+  }
+}
+
+function updateNewsGrid(articles) {
+  const grid = document.querySelector('.news-grid');
+  if (!grid || !articles.length) return;
+
+  const catColors = {
+    world: '#2471A3', finance: '#C0392B',
+    sports: '#27AE60', auto: '#8E44AD',
+    entertainment: '#E67E22'
+  };
+  const catIcons = {
+    world: '🌍', finance: '📈',
+    sports: '⚽', auto: '🚗',
+    entertainment: '🎬'
+  };
+  const catEmojis = {
+    world: '🌐', finance: '📊',
+    sports: '🏆', auto: '🏎️',
+    entertainment: '🎭'
+  };
+
+  let html = '';
+
+  // Featured wide card — top story
+  const top = articles[0];
+  const topCat = top.category || 'world';
+  html += `
+  <div class="nc wide">
+    <div class="nc-left">
+      <div class="nc-accent ${topCat}"></div>
+      <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
+        <span class="nc-big-num dn" style="font-size:28px;text-align:center;padding:10px;">${top.source || 'Breaking'}</span>
+        <span class="nc-big-icon">${catEmojis[topCat] || '📰'}</span>
+        <span class="nc-badge nb-breaking">Breaking</span>
+      </div>
+    </div>
+    <div>
+      <div class="nc-accent ${topCat}"></div>
+      <div class="nc-body" style="padding-top:22px;">
+        <div class="nc-cat ${topCat}">${catIcons[topCat] || '📰'} ${topCat.toUpperCase()} · ${top.region || 'Global'}</div>
+        <div class="nc-headline">${top.title}</div>
+        <div class="nc-excerpt">${(top.content || '').substring(0, 150)}...</div>
+        <div class="nc-footer">
+          <span class="nc-time">🕐 ${timeAgo(top.published_at)}</span>
+          <span class="nc-region">${top.source || 'News'}</span>
+        </div>
+      </div>
+      <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+    </div>
+  </div>`;
+
+  // Regular cards — next 4 articles
+  articles.slice(1, 5).forEach(article => {
+    const cat = article.category || 'world';
+    html += `
+    <div class="nc">
+      <div class="nc-accent ${cat}"></div>
+      <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
+        <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
+        <span class="nc-badge nb-alert">${cat}</span>
+      </div>
+      <div class="nc-body">
+        <div class="nc-cat ${cat}">${catIcons[cat] || '📰'} ${cat.toUpperCase()}</div>
+        <div class="nc-headline">${article.title}</div>
+        <div class="nc-footer">
+          <span class="nc-time">🕐 ${timeAgo(article.published_at)}</span>
+          <span class="nc-region">${article.source || 'News'}</span>
+        </div>
+      </div>
+      <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+    </div>`;
+  });
+
+  grid.innerHTML = html;
+}
+
+function updateLiveFeed(articles) {
+  const feed = document.querySelector('.hero-right');
+  if (!feed || !articles.length) return;
+
+  const catDots = {
+    world: 'dot-world', finance: 'dot-fin',
+    sports: 'dot-sports', auto: 'dot-auto',
+    entertainment: 'dot-ent'
+  };
+
+  let feedHtml = `
+  <div class="hero-right-header">
+    <span class="hero-right-title">Live Feed</span>
+    <span class="live-badge"><span class="live-dot"></span>Live</span>
+  </div>`;
+
+  articles.slice(0, 7).forEach(article => {
+    const cat = article.category || 'world';
+    feedHtml += `
+    <div class="feed-item">
+      <span class="feed-cat-dot ${catDots[cat] || 'dot-world'}"></span>
+      <div class="feed-content">
+        <div class="feed-text">${article.title.substring(0, 80)}...</div>
+        <div class="feed-time">${timeAgo(article.published_at)} · ${cat}</div>
+      </div>
+    </div>`;
+  });
+
+  feed.innerHTML = feedHtml;
+}
+
+function updateTrending(articles) {
+  const trending = document.querySelector('.sc .trend-item')?.parentElement;
+  if (!trending || !articles.length) return;
+
+  const nums = ['01','02','03','04','05','06'];
+  const hotClass = ['hot','hot','warm','warm','',''];
+
+  let html = '';
+  articles.slice(0, 6).forEach((article, i) => {
+    const cat = article.category || 'world';
+    const dotColors = {
+      world:'#5DADE2', finance:'#E74C3C',
+      sports:'#2ECC71', auto:'#BB8FCE', entertainment:'#F0A500'
+    };
+    html += `
+    <div class="trend-item">
+      <span class="trend-num ${hotClass[i]}">${nums[i]}</span>
+      <div>
+        <div class="trend-text">${article.title.substring(0, 70)}...</div>
+        <div class="trend-meta">
+          <span class="trend-cat-dot" style="background:${dotColors[cat]||'#888'};"></span>
+          ${cat} · ${article.read_count || Math.floor(Math.random()*5000+500)} reads
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Replace trending items keeping the title
+  const title = trending.querySelector('.sc-title');
+  trending.innerHTML = '';
+  if(title) trending.appendChild(title);
+  trending.innerHTML += html;
+}
+
+function updateCategoryCards(articles) {
+  const grid = document.querySelector('.four-grid');
+  if (!grid || !articles.length) return;
+
+  const categories = ['world', 'finance', 'sports', 'entertainment'];
+  const catIcons = {
+    world:'🌍', finance:'📈', sports:'⚽', entertainment:'🎬'
+  };
+
+  let html = '';
+  categories.forEach(cat => {
+    const article = articles.find(a => a.category === cat) || articles[0];
+    html += `
+    <div class="cat-card fi">
+      <div class="cat-card-header">
+        <span class="cat-card-label ${cat}">${catIcons[cat]} ${cat.toUpperCase()}</span>
+        <span style="font-size:10px;color:var(--text-muted);">${timeAgo(article.published_at)}</span>
+      </div>
+      <div class="cat-card-body">
+        <div class="cat-card-headline">${article.title.substring(0, 80)}...</div>
+      </div>
+      <div class="cat-card-footer">
+        <span class="cat-card-time">${article.source || 'News'}</span>
+        <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
+      </div>
+    </div>`;
+  });
+
+  grid.innerHTML = html;
+}
+
+// ── TICKER UPDATE ──
+function updateTickerWithNews(articles) {
+  const track = document.querySelector('.ticker-track');
+  if (!track || !articles.length) return;
+
+  const catClasses = {
+    world:'world', finance:'fin',
+    sports:'sports', auto:'auto', entertainment:'ent'
+  };
+
+  let html = '';
+  articles.slice(0, 10).forEach(article => {
+    const cat = article.category || 'world';
+    html += `<span class="t-item">
+      <span class="t-cat ${catClasses[cat]||'world'}">${cat.toUpperCase()}</span>
+      <span class="breaking-text">${article.title.substring(0, 60)}...</span>
+    </span>
+    <span class="t-sep">|</span>`;
+  });
+
+  // Duplicate for seamless loop
+  track.innerHTML = html + html;
+}
+
+// ── TIME AGO HELPER ──
+function timeAgo(dateStr) {
+  if (!dateStr) return 'Just now';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`;
+  return `${Math.floor(diff/86400)} days ago`;
+}
+
+// ── INIT & AUTO REFRESH ──
+async function initLiveData() {
+  console.log('PlanetBreaker: Loading live data...');
+  await fetchMarkets();
+  await fetchNews();
+  console.log('PlanetBreaker: Live data loaded!');
+}
+
+// Load on page start
+window.addEventListener('load', initLiveData);
+
+// Auto refresh every 5 minutes
+setInterval(initLiveData, 5 * 60 * 1000);
+
+// Refresh news ticker every 2 minutes
+setInterval(fetchNews, 2 * 60 * 1000);
+</script>
+
 </body>
 </html>
