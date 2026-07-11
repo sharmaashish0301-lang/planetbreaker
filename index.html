@@ -1167,11 +1167,17 @@ async function fetchNews() {
     const res = await fetch(`${API_BASE}/api/news`);
     const data = await res.json();
     if (!data.success || !data.articles.length) return;
-    updateNewsGrid(data.articles);
-    updateTicker(data.articles);
-    updateLiveFeed(data.articles);
-    updateTrending(data.articles);
-    updateCategoryCards(data.articles);
+    
+    // Remove duplicates first
+    const articles = deduplicateArticles(data.articles);
+    console.log(`PlanetBreaker: ${articles.length} unique articles loaded`);
+    
+    updateHero(articles);
+    updateNewsGrid(articles);
+    updateLiveFeed(articles);
+    updateTrending(articles);
+    updateCategoryCards(articles);
+    updateTickerWithNews(articles);
   } catch(e) {
     console.log('News fetch error:', e);
   }
@@ -1382,6 +1388,74 @@ function timeAgo(dateStr) {
   if (diff < 3600) return `${Math.floor(diff/60)} min ago`;
   if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`;
   return `${Math.floor(diff/86400)} days ago`;
+}
+
+// ── DEDUPLICATE ARTICLES ──
+function deduplicateArticles(articles) {
+  const seen = new Set();
+  return articles.filter(article => {
+    // Use first 60 chars of title as unique key
+    const key = article.title?.substring(0, 60).toLowerCase().trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// ── UPDATE HERO WITH REAL NEWS ──
+function updateHero(articles) {
+  if (!articles.length) return;
+  const top = articles[0];
+  const cat = top.category || 'world';
+  const catBadgeColors = {
+    world: 'badge-world', finance: 'badge-finance',
+    sports: 'badge-sports', auto: 'badge-auto',
+    entertainment: 'badge-ent'
+  };
+  const catIcons = {
+    world: '🌍', finance: '📈', sports: '⚽',
+    auto: '🚗', entertainment: '🎬'
+  };
+
+  // Update hero headline
+  const headline = document.querySelector('.hero-headline');
+  if (headline) headline.innerHTML = top.title;
+
+  // Update hero excerpt
+  const excerpt = document.querySelector('.hero-excerpt');
+  if (excerpt) excerpt.textContent = (top.content || top.title).substring(0, 200) + '...';
+
+  // Update hero meta
+  const meta = document.querySelector('.hero-meta');
+  if (meta) meta.innerHTML = `
+    <span>${catIcons[cat]} ${cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+    <span class="dot">●</span>
+    <span>${top.region || 'Global'}</span>
+    <span class="dot">●</span>
+    <span>${timeAgo(top.published_at)}</span>
+    <span class="dot">●</span>
+    <span>${top.source || 'News'}</span>
+  `;
+
+  // Update breaking pill category badge
+  const catBadge = document.querySelector('.hero-cat-badge');
+  if (catBadge) {
+    catBadge.className = `hero-cat-badge ${catBadgeColors[cat] || 'badge-world'}`;
+    catBadge.textContent = `${catIcons[cat]} ${cat.toUpperCase()}`;
+  }
+
+  // Update ticker row 2 with real top story
+  const tickerRow2 = document.querySelector('.ticker-track-2');
+  if (tickerRow2) {
+    const text = `⚡ TOP STORY: ${top.title} — ${top.source || 'Breaking News'}`;
+    tickerRow2.innerHTML = `
+      <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">${text}</span>
+      <span class="t-sep" style="color:#333355;padding:0 40px;">————</span>
+      <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">${text}</span>
+      <span class="t-sep" style="color:#333355;padding:0 40px;">————</span>
+      <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">${text}</span>
+    `;
+  }
 }
 
 // ── INIT & AUTO REFRESH ──
