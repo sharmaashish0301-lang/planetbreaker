@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanetBreaker — Article</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ivory: #FAF7F2;
+  --ivory-dark: #F0EBE1;
+  --charcoal: #1A1A2E;
+  --crimson: #C0392B;
+  --amber: #E67E22;
+  --green: #27AE60;
+  --red: #E74C3C;
+  --blue: #2471A3;
+  --purple: #8E44AD;
+  --text-primary: #1A1A2E;
+  --text-secondary: #5A5A7A;
+  --text-muted: #9A9AB0;
+  --card-bg: #FFFFFF;
+  --border: #E8E2D9;
+  --shadow: 0 2px 16px rgba(26,26,46,0.07);
+  --shadow-hover: 0 8px 36px rgba(26,26,46,0.14);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: var(--ivory); color: var(--text-primary); }
+
+/* NAVBAR */
+.navbar { background: var(--ivory); border-bottom: 2px solid var(--charcoal); padding: 0 40px; position: sticky; top: 0; z-index: 99; }
+.nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.logo { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 900; color: var(--charcoal); text-decoration: none; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.btn-back { background: transparent; border: 2px solid var(--charcoal); border-radius: 6px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--charcoal); cursor: pointer; font-family: 'Inter', sans-serif; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.btn-back:hover { background: var(--charcoal); color: white; }
+.btn-bookmark { background: var(--crimson); color: white; border: none; border-radius: 6px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.2s; }
+.btn-bookmark:hover { background: #A93226; }
+.btn-bookmark.saved { background: #F39C12; }
+
+/* ARTICLE LAYOUT */
+.article-wrap { max-width: 1200px; margin: 0 auto; padding: 40px 40px; display: grid; grid-template-columns: 1fr 340px; gap: 48px; }
+
+/* ARTICLE MAIN */
+.article-main {}
+
+/* Breadcrumb */
+.breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 12px; color: var(--text-muted); }
+.breadcrumb a { color: var(--crimson); text-decoration: none; font-weight: 600; }
+.breadcrumb span { color: var(--text-muted); }
+
+/* Category + Breaking */
+.article-tags { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.art-tag { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+.tag-breaking { background: var(--crimson); color: white; }
+.tag-world { background: rgba(36,113,163,0.12); color: #2471A3; }
+.tag-finance { background: rgba(192,57,43,0.12); color: var(--crimson); }
+.tag-sports { background: rgba(39,174,96,0.12); color: #27AE60; }
+.tag-auto { background: rgba(142,68,173,0.12); color: #8E44AD; }
+.tag-entertainment { background: rgba(230,126,34,0.12); color: #E67E22; }
+
+/* Headline */
+.article-headline { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; color: var(--charcoal); line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
+
+/* Meta */
+.article-meta { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-secondary); font-weight: 500; }
+.meta-dot { color: var(--border); }
+
+/* AD SLOT TOP */
+.ad-slot { background: var(--ivory-dark); border: 1px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 28px; }
+.ad-slot-label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+.ad-slot-size { font-size: 12px; color: var(--text-muted); }
+/* Replace above with real AdSense code when approved */
+
+/* Article Content */
+.article-content { font-size: 17px; line-height: 1.85; color: #2D2D44; margin-bottom: 32px; }
+.article-content p { margin-bottom: 20px; }
+.article-content strong { color: var(--charcoal); font-weight: 700; }
+.article-content .pull-quote { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--charcoal); border-left: 4px solid var(--crimson); padding: 16px 24px; margin: 28px 0; background: var(--ivory-dark); border-radius: 0 8px 8px 0; line-height: 1.4; }
+
+/* Source credit */
+.source-credit { background: var(--ivory-dark); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.source-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.source-name { font-size: 14px; font-weight: 700; color: var(--charcoal); }
+.source-link { background: var(--charcoal); color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; transition: background 0.2s; }
+.source-link:hover { background: var(--crimson); }
+
+/* Share buttons */
+.share-section { margin-bottom: 32px; }
+.share-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+.share-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.share-btn { display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all 0.2s; text-decoration: none; }
+.share-whatsapp { background: #25D366; color: white; }
+.share-whatsapp:hover { background: #128C7E; }
+.share-twitter { background: #000; color: white; }
+.share-twitter:hover { background: #333; }
+.share-copy { background: var(--ivory-dark); color: var(--charcoal); border: 1px solid var(--border) !important; }
+.share-copy:hover { background: var(--charcoal); color: white; }
+.share-telegram { background: #0088cc; color: white; }
+.share-telegram:hover { background: #006699; }
+
+/* AD SLOT BOTTOM */
+.ad-slot-bottom { margin-top: 32px; margin-bottom: 32px; }
+
+/* Related articles */
+.related-section { margin-top: 40px; padding-top: 32px; border-top: 2px solid var(--charcoal); }
+.related-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--charcoal); margin-bottom: 20px; }
+.related-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.related-card { background: var(--card-bg); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; display: block; }
+.related-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.related-accent { height: 3px; }
+.related-body { padding: 14px; }
+.related-cat { font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+.related-headline { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--charcoal); line-height: 1.35; margin-bottom: 8px; }
+.related-time { font-size: 10.5px; color: var(--text-muted); }
+
+/* SIDEBAR */
+.article-sidebar { display: flex; flex-direction: column; gap: 24px; }
+.sc { background: var(--card-bg); border-radius: 12px; padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.sc-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--charcoal); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+/* Trending sidebar */
+.trend-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: padding-left 0.18s; text-decoration: none; }
+.trend-item:hover { padding-left: 4px; }
+.trend-item:last-child { border-bottom: none; padding-bottom: 0; }
+.trend-num { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--border); flex-shrink: 0; width: 26px; line-height: 1.2; }
+.trend-num.hot { color: var(--crimson); }
+.trend-text { font-size: 12.5px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+.trend-meta { font-size: 10.5px; color: var(--text-muted); margin-top: 3px; }
+
+/* Save card */
+.save-card { background: linear-gradient(135deg, var(--charcoal) 0%, #2D2D44 100%); border-radius: 12px; padding: 24px; text-align: center; }
+.save-card-icon { font-size: 28px; margin-bottom: 10px; }
+.save-card-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: white; margin-bottom: 6px; }
+.save-card-sub { font-size: 12.5px; color: #8888AA; line-height: 1.6; margin-bottom: 16px; }
+.btn-subscribe { width: 100%; background: var(--crimson); color: white; border: none; border-radius: 8px; padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: background 0.2s; }
+.btn-subscribe:hover { background: #A93226; }
+
+/* Sidebar ad */
+.sidebar-ad { background: var(--ivory-dark); border: 1px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Toast */
+#toast { position: fixed; bottom: 24px; right: 24px; background: var(--charcoal); color: white; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+/* Loading state */
+.loading { text-align: center; padding: 60px 20px; }
+.loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--crimson); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .article-wrap { grid-template-columns: 1fr !important; padding: 20px 16px !important; gap: 32px !important; }
+  .article-headline { font-size: 28px !important; }
+  .navbar { padding: 0 16px; }
+  .related-grid { grid-template-columns: 1fr !important; }
+  .share-buttons { gap: 8px; }
+  .share-btn { padding: 8px 12px; font-size: 11.5px; }
+  .article-content { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="logo">PlanetBreaker</a>
+    <div class="nav-right">
+      <a href="/" class="btn-back">← Back to Home</a>
+      <button class="btn-bookmark" id="bookmarkBtn" onclick="toggleBookmark()">🔖 Save Article</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ARTICLE -->
+<div class="article-wrap">
+  <div class="article-main" id="articleMain">
+    <!-- Loading state -->
+    <div class="loading" id="loadingState">
+      <div class="loading-spinner"></div>
+      <p style="color:var(--text-muted);font-size:14px;">Loading article...</p>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="article-sidebar">
+    <!-- Ad slot sidebar -->
+    <div class="sidebar-ad">
+      <div class="ad-slot-label">Advertisement</div>
+      <div class="ad-slot-size">300 × 250</div>
+      <!-- Replace with AdSense code when approved -->
+    </div>
+
+    <!-- Save CTA -->
+    <div class="save-card">
+      <div class="save-card-icon">🔖</div>
+      <div class="save-card-title">Save This Article</div>
+      <div class="save-card-sub">Get the PlanetBreaker Pass and save up to 31 articles per month for ₹29/month.</div>
+      <button class="btn-subscribe">Get Pass — ₹29/mo</button>
+    </div>
+
+    <!-- Trending -->
+    <div class="sc">
+      <div class="sc-title">🔥 Trending Now</div>
+      <div id="trendingList">
+        <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Ad slot sidebar 2 -->
+    <div class="sidebar-ad">
+      <div class="ad-slot-label">Advertisement</div>
+      <div class="ad-slot-size">300 × 600</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://zjcwvnvnhyjjaoltybvj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
+
+const catColors = {
+  world: '#2471A3', finance: '#C0392B',
+  sports: '#27AE60', auto: '#8E44AD',
+  entertainment: '#E67E22'
+};
+const catIcons = {
+  world: '🌍', finance: '📈',
+  sports: '⚽', auto: '🚗',
+  entertainment: '🎬'
+};
+
+// Get article ID from URL
+const params = new URLSearchParams(window.location.search);
+const articleId = params.get('id');
+
+// Fetch and render article
+async function loadArticle() {
+  if (!articleId) {
+    window.location.href = '/';
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?id=eq.${articleId}&select=*`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+    const data = await res.json();
+    if (!data.length) { window.location.href = '/'; return; }
+
+    const article = data[0];
+    renderArticle(article);
+    updatePageTitle(article.title);
+    incrementReadCount(article.id);
+    loadRelated(article.category, article.id);
+    loadTrending();
+
+  } catch(e) {
+    console.error('Article load error:', e);
+  }
+}
+
+function renderArticle(article) {
+  const cat = article.category || 'world';
+  const main = document.getElementById('articleMain');
+
+  // Generate expanded content
+  const content = expandContent(article.content || article.title);
+
+  main.innerHTML = `
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="/">Home</a>
+      <span>›</span>
+      <a href="/?cat=${cat}">${cat.charAt(0).toUpperCase() + cat.slice(1)}</a>
+      <span>›</span>
+      <span>${article.title.substring(0, 40)}...</span>
+    </div>
+
+    <!-- Tags -->
+    <div class="article-tags">
+      <span class="art-tag tag-breaking">Breaking</span>
+      <span class="art-tag tag-${cat}">${catIcons[cat]} ${cat.toUpperCase()}</span>
+      <span class="art-tag" style="background:var(--ivory-dark);color:var(--text-secondary);">🌍 ${article.region || 'Global'}</span>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="article-headline">${article.title}</h1>
+
+    <!-- Meta -->
+    <div class="article-meta">
+      <div class="meta-item">📰 <strong>${article.source || 'PlanetBreaker'}</strong></div>
+      <span class="meta-dot">●</span>
+      <div class="meta-item">🕐 ${timeAgo(article.published_at)}</div>
+      <span class="meta-dot">●</span>
+      <div class="meta-item">👁 ${(article.read_count || 0) + 1} reads</div>
+      <span class="meta-dot">●</span>
+      <div class="meta-item">📍 ${article.region || 'Global'}</div>
+    </div>
+
+    <!-- Ad Slot Top -->
+    <div class="ad-slot">
+      <div class="ad-slot-label">Advertisement</div>
+      <div class="ad-slot-size">728 × 90 — Leaderboard Ad</div>
+      <!-- Replace with Google AdSense code when approved -->
+    </div>
+
+    <!-- Article Content -->
+    <div class="article-content">
+      ${content}
+    </div>
+
+    <!-- Source Credit -->
+    <div class="source-credit">
+      <div>
+        <div class="source-label">Original Source</div>
+        <div class="source-name">${article.source || 'News Source'}</div>
+      </div>
+      ${article.source_url ? `<a href="${article.source_url}" target="_blank" rel="noopener" class="source-link">Read Original →</a>` : ''}
+    </div>
+
+    <!-- Share -->
+    <div class="share-section">
+      <div class="share-title">Share this story</div>
+      <div class="share-buttons">
+        <a href="https://wa.me/?text=${encodeURIComponent(article.title + ' — ' + window.location.href)}" target="_blank" class="share-btn share-whatsapp">📱 WhatsApp</a>
+        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="share-btn share-twitter">𝕏 Twitter</a>
+        <a href="https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}" target="_blank" class="share-btn share-telegram">✈️ Telegram</a>
+        <button class="share-btn share-copy" onclick="copyLink()">🔗 Copy Link</button>
+      </div>
+    </div>
+
+    <!-- Ad Slot Bottom -->
+    <div class="ad-slot ad-slot-bottom">
+      <div class="ad-slot-label">Advertisement</div>
+      <div class="ad-slot-size">728 × 90 — Leaderboard Ad</div>
+    </div>
+
+    <!-- Related Articles -->
+    <div class="related-section">
+      <div class="related-title">More ${cat.charAt(0).toUpperCase() + cat.slice(1)} Stories</div>
+      <div class="related-grid" id="relatedGrid">
+        <div style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</div>
+      </div>
+    </div>
+  `;
+}
+
+// Expand short content into readable article
+function expandContent(raw) {
+  if (!raw) return '<p>Full article content loading...</p>';
+  
+  // Clean up content
+  const clean = raw
+    .replace(/\[\+\d+ chars\]/g, '')
+    .replace(/<[^>]*>/g, '')
+    .trim();
+
+  // Split into paragraphs
+  const sentences = clean.match(/[^.!?]+[.!?]+/g) || [clean];
+  
+  let html = '';
+  let paraBuffer = [];
+  
+  sentences.forEach((sentence, i) => {
+    paraBuffer.push(sentence.trim());
+    // Every 3 sentences = new paragraph
+    if (paraBuffer.length === 3 || i === sentences.length - 1) {
+      html += `<p>${paraBuffer.join(' ')}</p>`;
+      paraBuffer = [];
+      // Add pull quote after first paragraph
+      if (i === 2 && sentences.length > 6) {
+        html += `<div class="pull-quote">"${sentences[1].trim()}"</div>`;
+      }
+    }
+  });
+
+  return html || `<p>${clean}</p>`;
+}
+
+// Load related articles
+async function loadRelated(category, currentId) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?category=eq.${category}&id=neq.${currentId}&select=*&order=published_at.desc&limit=3`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+    const articles = await res.json();
+    const grid = document.getElementById('relatedGrid');
+    if (!grid || !articles.length) return;
+
+    grid.innerHTML = articles.map(a => `
+      <a href="/article.html?id=${a.id}" class="related-card">
+        <div class="related-accent" style="background:${catColors[a.category]||'#C0392B'};"></div>
+        <div class="related-body">
+          <div class="related-cat">${catIcons[a.category]||'📰'} ${(a.category||'news').toUpperCase()}</div>
+          <div class="related-headline">${a.title}</div>
+          <div class="related-time">${timeAgo(a.published_at)}</div>
+        </div>
+      </a>
+    `).join('');
+  } catch(e) { console.log('Related load error:', e); }
+}
+
+// Load trending
+async function loadTrending() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?select=*&order=read_count.desc&limit=6`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+    const articles = await res.json();
+    const list = document.getElementById('trendingList');
+    if (!list || !articles.length) return;
+
+    const nums = ['01','02','03','04','05','06'];
+    const hot = ['hot','hot','','','',''];
+
+    list.innerHTML = articles.map((a, i) => `
+      <a href="/article.html?id=${a.id}" class="trend-item">
+        <span class="trend-num ${hot[i]}">${nums[i]}</span>
+        <div>
+          <div class="trend-text">${a.title.substring(0, 65)}...</div>
+          <div class="trend-meta">${a.category} · ${a.read_count || 0} reads</div>
+        </div>
+      </a>
+    `).join('');
+  } catch(e) { console.log('Trending load error:', e); }
+}
+
+// Increment read count
+async function incrementReadCount(id) {
+  try {
+    // Get current count
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?id=eq.${id}&select=read_count`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    const data = await res.json();
+    const currentCount = data[0]?.read_count || 0;
+
+    // Update
+    await fetch(`${SUPABASE_URL}/rest/v1/articles?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ read_count: currentCount + 1 })
+    });
+  } catch(e) { console.log('Read count error:', e); }
+}
+
+// Update page title
+function updatePageTitle(title) {
+  document.title = `${title} — PlanetBreaker`;
+}
+
+// Bookmark toggle
+let isBookmarked = false;
+function toggleBookmark() {
+  isBookmarked = !isBookmarked;
+  const btn = document.getElementById('bookmarkBtn');
+  if (isBookmarked) {
+    btn.textContent = '✅ Saved';
+    btn.classList.add('saved');
+    showToast('Article saved to your collection!');
+  } else {
+    btn.textContent = '🔖 Save Article';
+    btn.classList.remove('saved');
+    showToast('Removed from saved');
+  }
+}
+
+// Copy link
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href);
+  showToast('Link copied to clipboard!');
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2500);
+}
+
+// Time ago
+function timeAgo(dateStr) {
+  if (!dateStr) return 'Just now';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now - date) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`;
+  return `${Math.floor(diff/86400)} days ago`;
+}
+
+// Init
+loadArticle();
+</script>
+</body>
+</html>
