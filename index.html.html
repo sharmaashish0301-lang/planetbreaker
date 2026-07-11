@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanetBreaker — Breaking News. Every Planet. Every Second.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ivory: #FAF7F2;
+  --ivory-dark: #F0EBE1;
+  --ivory-deeper: #E8E0D4;
+  --charcoal: #1A1A2E;
+  --charcoal-soft: #2D2D44;
+  --crimson: #C0392B;
+  --crimson-bright: #E74C3C;
+  --amber: #E67E22;
+  --green: #27AE60;
+  --red: #E74C3C;
+  --blue: #2471A3;
+  --purple: #8E44AD;
+  --text-primary: #1A1A2E;
+  --text-secondary: #5A5A7A;
+  --text-muted: #9A9AB0;
+  --card-bg: #FFFFFF;
+  --border: #E8E2D9;
+  --shadow: 0 2px 16px rgba(26,26,46,0.07);
+  --shadow-hover: 0 8px 36px rgba(26,26,46,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-primary);overflow-x:hidden;}
+
+/* ── DUAL TICKER SYSTEM ── */
+.ticker-wrap{background:var(--charcoal);overflow:hidden;position:relative;z-index:100;}
+.ticker-row{display:flex;align-items:center;height:36px;overflow:hidden;position:relative;}
+.ticker-row-2{background:#111122;height:34px;}
+.ticker-label{background:var(--crimson);color:#fff;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;z-index:2;}
+.ticker-label-2{background:#E67E22;}
+.ticker-track{display:flex;white-space:nowrap;animation:tickerMove 40s linear infinite;}
+.ticker-track-2{animation:tickerMove 55s linear infinite;}
+.ticker-track:hover,.ticker-track-2:hover{animation-play-state:paused;}
+.t-item{display:inline-flex;align-items:center;gap:7px;padding:0 28px;font-size:11.5px;font-weight:500;color:#CCC;}
+.t-item .up{color:#2ECC71;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.t-item .dn{color:#E74C3C;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.t-item .neu{color:#8888AA;font-family:'JetBrains Mono',monospace;}
+.t-sep{color:#333355;padding:0 4px;}
+.t-cat{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;margin-right:4px;}
+.t-cat.world{background:rgba(52,152,219,0.25);color:#5DADE2;}
+.t-cat.fin{background:rgba(192,57,43,0.25);color:#E74C3C;}
+.t-cat.sports{background:rgba(39,174,96,0.25);color:#2ECC71;}
+.t-cat.auto{background:rgba(142,68,173,0.25);color:#BB8FCE;}
+.t-cat.ent{background:rgba(230,126,34,0.25);color:#F0A500;}
+.breaking-text{font-size:11.5px;font-weight:600;color:#EEE;}
+@keyframes tickerMove{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* ── NAVBAR ── */
+.navbar{background:var(--ivory);border-bottom:2px solid var(--charcoal);position:sticky;top:0;z-index:99;padding:0 40px;}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{font-family:'Playfair Display',serif;font-size:27px;font-weight:900;color:var(--charcoal);text-decoration:none;letter-spacing:-0.5px;}
+.nav-links{display:flex;align-items:center;gap:0;list-style:none;}
+.nav-links li a{display:block;padding:0 18px;height:64px;line-height:64px;font-size:12.5px;font-weight:600;color:var(--text-secondary);text-decoration:none;letter-spacing:0.3px;text-transform:uppercase;transition:color 0.2s;position:relative;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.nav-links li a:hover{color:var(--charcoal);}
+.nav-links li a.active{color:var(--charcoal);border-bottom:3px solid var(--crimson);}
+.nav-links li a.world{border-bottom-color:#2471A3;}
+.nav-links li a.sports-link{border-bottom-color:#27AE60;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.region-pill{display:flex;align-items:center;gap:6px;background:var(--ivory-dark);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--charcoal);cursor:pointer;}
+.region-flag{font-size:15px;}
+.btn-save{background:transparent;border:2px solid var(--charcoal);border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;color:var(--charcoal);cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+.btn-save:hover{background:var(--charcoal);color:white;}
+.btn-alerts{background:var(--crimson);color:white;border:none;border-radius:6px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.btn-alerts:hover{background:#A93226;}
+
+/* ── HERO ── */
+.hero{background:var(--charcoal);position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(192,57,43,0.12) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(36,113,163,0.08) 0%,transparent 60%);pointer-events:none;}
+.hero-inner{max-width:1440px;margin:0 auto;padding:52px 40px;display:grid;grid-template-columns:1fr 420px;gap:52px;align-items:start;position:relative;z-index:1;}
+.hero-left{}
+.breaking-pill{display:inline-flex;align-items:center;gap:8px;background:var(--crimson);color:white;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:4px;margin-bottom:18px;}
+.blink-dot{width:6px;height:6px;background:white;border-radius:50%;animation:blink 1s ease-in-out infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.15;}}
+.hero-cat-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:4px;margin-bottom:14px;margin-left:10px;}
+.badge-world{background:rgba(52,152,219,0.2);color:#5DADE2;}
+.badge-finance{background:rgba(192,57,43,0.2);color:#E74C3C;}
+.badge-sports{background:rgba(39,174,96,0.2);color:#2ECC71;}
+.badge-auto{background:rgba(142,68,173,0.2);color:#BB8FCE;}
+.badge-ent{background:rgba(230,126,34,0.2);color:#F0A500;}
+.hero-headline{font-family:'Playfair Display',serif;font-size:50px;font-weight:900;color:white;line-height:1.08;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero-headline .accent{color:#F39C12;}
+.hero-excerpt{font-size:15px;color:#AAAACC;line-height:1.75;margin-bottom:24px;max-width:560px;}
+.hero-meta{display:flex;align-items:center;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+.hero-meta span{font-size:12px;color:#7777AA;font-weight:500;}
+.hero-meta .dot{color:#333355;}
+.hero-actions{display:flex;align-items:center;gap:14px;}
+.btn-read{background:white;color:var(--charcoal);border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.btn-read:hover{background:var(--ivory-dark);}
+.btn-bookmark-hero{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 14px;cursor:pointer;font-size:16px;transition:all 0.2s;color:white;}
+.btn-bookmark-hero:hover{background:rgba(255,255,255,0.15);}
+.btn-bookmark-hero.saved{color:#F39C12;}
+
+/* Hero right — live feed */
+.hero-right{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;overflow:hidden;}
+.hero-right-header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;}
+.hero-right-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5555AA;}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#2ECC71;letter-spacing:1px;}
+.live-dot{width:5px;height:5px;background:#2ECC71;border-radius:50%;animation:blink 1s ease-in-out infinite;}
+.feed-item{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;display:flex;gap:12px;align-items:flex-start;}
+.feed-item:hover{background:rgba(255,255,255,0.03);}
+.feed-item:last-child{border-bottom:none;}
+.feed-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.dot-world{background:#5DADE2;}
+.dot-fin{background:#E74C3C;}
+.dot-sports{background:#2ECC71;}
+.dot-ent{background:#F0A500;}
+.dot-auto{background:#BB8FCE;}
+.feed-content{}
+.feed-text{font-size:12.5px;font-weight:600;color:#DDDDEE;line-height:1.4;margin-bottom:4px;}
+.feed-time{font-size:10px;color:#4444AA;}
+
+/* ── MARKET STRIP ── */
+.market-strip{background:var(--ivory-dark);border-bottom:1px solid var(--border);padding:10px 0;overflow:hidden;}
+.market-strip-inner{display:flex;align-items:center;gap:0;}
+.ms-label{background:var(--charcoal);color:#8888AA;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:0 16px;height:36px;display:flex;align-items:center;flex-shrink:0;}
+.ms-track{display:flex;animation:tickerMove 45s linear infinite;white-space:nowrap;}
+.ms-track:hover{animation-play-state:paused;}
+.ms-item{display:inline-flex;align-items:center;gap:8px;padding:0 24px;border-right:1px solid var(--border);}
+.ms-name{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+.ms-price{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--charcoal);}
+.ms-change{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;}
+.ms-change.up{color:var(--green);}
+.ms-change.dn{color:var(--red);}
+
+/* ── MAIN LAYOUT ── */
+.main{max-width:1440px;margin:0 auto;padding:44px 40px;display:grid;grid-template-columns:1fr 360px;gap:48px;}
+.content{}
+
+/* Section header */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:12px;border-bottom:2px solid var(--charcoal);}
+.sh-left{display:flex;align-items:center;gap:10px;}
+.sh-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:var(--charcoal);}
+.sh-count{font-size:11px;font-weight:700;background:var(--charcoal);color:white;padding:3px 8px;border-radius:12px;}
+.sh-link{font-size:11px;font-weight:700;color:var(--crimson);text-decoration:none;letter-spacing:0.5px;text-transform:uppercase;display:flex;align-items:center;gap:5px;transition:gap 0.2s;}
+.sh-link:hover{gap:9px;}
+
+/* Category pills */
+.cat-pills{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;}
+.cat-pill{padding:7px 16px;border-radius:20px;font-size:11.5px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-family:'Inter',sans-serif;transition:all 0.2s;letter-spacing:0.2px;}
+.cat-pill:hover{border-color:var(--charcoal);color:var(--charcoal);}
+.cat-pill.active{background:var(--charcoal);border-color:var(--charcoal);color:white;}
+.cat-pill.p-world.active{background:#2471A3;border-color:#2471A3;}
+.cat-pill.p-fin.active{background:var(--crimson);border-color:var(--crimson);}
+.cat-pill.p-sports.active{background:#27AE60;border-color:#27AE60;}
+.cat-pill.p-auto.active{background:#8E44AD;border-color:#8E44AD;}
+.cat-pill.p-ent.active{background:#E67E22;border-color:#E67E22;}
+
+/* Four category cards */
+.four-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:44px;}
+.cat-card{background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:transform 0.22s,box-shadow 0.22s;position:relative;}
+.cat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);}
+.cat-card-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cat-card-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+.cat-card-label.world{color:#2471A3;}
+.cat-card-label.fin{color:var(--crimson);}
+.cat-card-label.sports{color:#27AE60;}
+.cat-card-label.auto{color:#8E44AD;}
+.cat-card-label.ent{color:#E67E22;}
+.cat-card-body{padding:16px;}
+.cat-card-headline{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--charcoal);line-height:1.35;margin-bottom:10px;}
+.cat-card-footer{display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px;}
+.cat-card-time{font-size:10px;color:var(--text-muted);font-weight:500;}
+.bookmark-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:2px;transition:transform 0.15s;color:var(--text-muted);}
+.bookmark-btn:hover{transform:scale(1.2);}
+.bookmark-btn.saved{color:#F39C12;}
+
+/* Main news grid */
+.news-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:44px;}
+.nc{background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:transform 0.22s,box-shadow 0.22s;position:relative;}
+.nc:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);}
+.nc.wide{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;}
+.nc-accent{height:4px;}
+.nc-accent.world{background:#2471A3;}
+.nc-accent.fin{background:var(--crimson);}
+.nc-accent.sports{background:#27AE60;}
+.nc-accent.auto{background:#8E44AD;}
+.nc-accent.ent{background:#E67E22;}
+.nc-accent.viral{background:#F39C12;}
+.nc-left{}
+.nc-visual{padding:24px;background:var(--ivory-dark);display:flex;align-items:center;justify-content:center;min-height:160px;position:relative;}
+.nc.wide .nc-visual{min-height:100%;}
+.nc-big-num{font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:700;line-height:1;}
+.nc-big-num.up{color:var(--green);}
+.nc-big-num.dn{color:var(--red);}
+.nc-big-num.world{color:#2471A3;}
+.nc-big-num.ent{color:#E67E22;}
+.nc-big-num.sports{color:#27AE60;}
+.nc-big-icon{font-size:52px;opacity:0.15;position:absolute;bottom:10px;right:10px;}
+.nc-badge{position:absolute;top:12px;left:12px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;color:white;}
+.nb-breaking{background:var(--crimson);}
+.nb-exclusive{background:#8E44AD;}
+.nb-viral{background:#E67E22;}
+.nb-alert{background:#2471A3;}
+.nb-trending{background:#27AE60;}
+.nc-bookmark{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);border:none;border-radius:6px;padding:5px 7px;cursor:pointer;font-size:14px;transition:all 0.15s;color:var(--text-muted);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+.nc-bookmark:hover{transform:scale(1.1);}
+.nc-bookmark.saved{color:#F39C12;}
+.nc-body{padding:18px;}
+.nc-cat{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;}
+.nc-cat.world{color:#2471A3;}
+.nc-cat.fin{color:var(--crimson);}
+.nc-cat.sports{color:#27AE60;}
+.nc-cat.auto{color:#8E44AD;}
+.nc-cat.ent{color:#E67E22;}
+.nc-cat.viral{color:#F39C12;}
+.nc-headline{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--charcoal);line-height:1.35;margin-bottom:8px;}
+.nc.wide .nc-headline{font-size:22px;}
+.nc-excerpt{font-size:12.5px;color:var(--text-secondary);line-height:1.65;margin-bottom:12px;}
+.nc-footer{display:flex;align-items:center;justify-content:space-between;}
+.nc-time{font-size:10.5px;color:var(--text-muted);font-weight:500;}
+.nc-region{font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:3px;background:var(--ivory-dark);color:var(--text-secondary);}
+
+/* Social embed card */
+.social-card{background:var(--card-bg);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;}
+.social-header{padding:16px 20px;background:var(--ivory-dark);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.social-source{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--charcoal);}
+.social-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:var(--charcoal);color:white;}
+.social-body{padding:20px;}
+.social-quote{font-size:15px;color:var(--charcoal);line-height:1.65;margin-bottom:12px;font-style:italic;border-left:3px solid var(--crimson);padding-left:14px;}
+.social-context{font-size:12.5px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;}
+.social-credit{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
+.social-credit a{color:var(--crimson);text-decoration:none;font-weight:600;}
+
+/* ── SIDEBAR ── */
+.sidebar{display:flex;flex-direction:column;gap:24px;}
+.sc{background:var(--card-bg);border-radius:12px;padding:22px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.sc-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--charcoal);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+
+/* Paywall / Save */
+.save-card{background:linear-gradient(135deg,var(--charcoal) 0%,#2D2D44 100%);border-radius:12px;padding:24px;text-align:center;border:none;}
+.save-card-icon{font-size:28px;margin-bottom:10px;}
+.save-card-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:white;margin-bottom:6px;}
+.save-card-sub{font-size:12.5px;color:#8888AA;line-height:1.6;margin-bottom:8px;}
+.save-meter{background:rgba(255,255,255,0.08);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.save-meter-label{font-size:11px;color:#6666AA;font-weight:600;}
+.save-meter-count{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#F39C12;}
+.save-progress{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:16px;overflow:hidden;}
+.save-progress-fill{height:100%;background:linear-gradient(90deg,#F39C12,#E67E22);border-radius:2px;width:30%;}
+.btn-subscribe{width:100%;background:var(--crimson);color:white;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:8px;transition:background 0.2s;}
+.btn-subscribe:hover{background:#A93226;}
+.btn-free{width:100%;background:transparent;color:#6666AA;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.btn-free:hover{color:white;border-color:rgba(255,255,255,0.2);}
+
+/* Trending */
+.trend-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding-left 0.18s;}
+.trend-item:hover{padding-left:4px;}
+.trend-item:last-child{border-bottom:none;padding-bottom:0;}
+.trend-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--border);flex-shrink:0;width:26px;line-height:1.2;}
+.trend-num.hot{color:var(--crimson);}
+.trend-num.warm{color:var(--amber);}
+.trend-text{font-size:12.5px;font-weight:600;color:var(--text-primary);line-height:1.4;}
+.trend-meta{font-size:10.5px;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:6px;}
+.trend-cat-dot{width:6px;height:6px;border-radius:50%;display:inline-block;}
+
+/* Signal counts */
+.signal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.signal-box{text-align:center;padding:14px 10px;border-radius:10px;border:1px solid;}
+.signal-box.highs{background:rgba(39,174,96,0.05);border-color:rgba(39,174,96,0.2);}
+.signal-box.lows{background:rgba(231,76,60,0.05);border-color:rgba(231,76,60,0.2);}
+.signal-box.blocks{background:rgba(142,68,173,0.05);border-color:rgba(142,68,173,0.2);}
+.signal-box.insider{background:rgba(36,113,163,0.05);border-color:rgba(36,113,163,0.2);}
+.signal-num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;}
+.signal-box.highs .signal-num{color:var(--green);}
+.signal-box.lows .signal-num{color:var(--red);}
+.signal-box.blocks .signal-num{color:#8E44AD;}
+.signal-box.insider .signal-num{color:#2471A3;}
+.signal-lbl{font-size:9.5px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);margin-top:3px;}
+
+/* Alert signup */
+.alert-cta{background:var(--charcoal);border-radius:12px;padding:22px;text-align:center;}
+.alert-cta-icon{font-size:26px;margin-bottom:10px;}
+.alert-cta-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:white;margin-bottom:6px;}
+.alert-cta-text{font-size:12px;color:#7777AA;line-height:1.6;margin-bottom:16px;}
+.alert-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;padding:9px 13px;font-size:12.5px;color:white;margin-bottom:8px;font-family:'Inter',sans-serif;}
+.alert-input::placeholder{color:#4444AA;}
+.alert-submit{width:100%;background:var(--crimson);color:white;border:none;border-radius:7px;padding:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.alert-submit:hover{background:#A93226;}
+
+/* ── FOOTER ── */
+footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
+.footer-inner{max-width:1440px;margin:0 auto;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.footer-brand{}
+.footer-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:white;margin-bottom:10px;}
+.footer-logo span{color:var(--crimson);}
+.footer-desc{font-size:12.5px;color:#5555AA;line-height:1.7;margin-bottom:18px;}
+.footer-socials{display:flex;gap:10px;}
+.social-btn{width:32px;height:32px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:background 0.2s;}
+.social-btn:hover{background:rgba(255,255,255,0.12);}
+.footer-col-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#7777AA;margin-bottom:14px;}
+.footer-col a{display:block;font-size:12.5px;color:#5555AA;text-decoration:none;margin-bottom:9px;transition:color 0.18s;}
+.footer-col a:hover{color:white;}
+.footer-bottom{max-width:1440px;margin:0 auto;padding:20px 0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-copy{font-size:11.5px;color:#3333AA;}
+.footer-disclaimer{font-size:10.5px;color:#2D2D55;line-height:1.6;max-width:580px;}
+
+/* Paywall modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:16px;padding:40px;max-width:440px;width:90%;text-align:center;position:relative;}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted);}
+.modal-icon{font-size:36px;margin-bottom:12px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--charcoal);margin-bottom:8px;}
+.modal-sub{font-size:14px;color:var(--text-secondary);line-height:1.65;margin-bottom:24px;}
+.modal-plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.plan{border:2px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:left;}
+.plan:hover,.plan.selected{border-color:var(--crimson);background:rgba(192,57,43,0.03);}
+.plan-name{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+.plan-price{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--charcoal);margin-bottom:4px;}
+.plan-desc{font-size:11px;color:var(--text-muted);}
+.modal-cta{width:100%;background:var(--crimson);color:white;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px;}
+.modal-skip{font-size:12px;color:var(--text-muted);cursor:pointer;text-decoration:underline;}
+
+/* Fade in */
+.fi{opacity:0;transform:translateY(14px);animation:fadeUp 0.45s ease forwards;}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+.fi:nth-child(1){animation-delay:0.05s;}
+.fi:nth-child(2){animation-delay:0.12s;}
+.fi:nth-child(3){animation-delay:0.19s;}
+.fi:nth-child(4){animation-delay:0.26s;}
+</style>
+</head>
+<body>
+
+<!-- TICKER ROW 1: World > Region > Finance > Entertainment > Sports > Auto > Trending -->
+<div class="ticker-wrap">
+  <div class="ticker-row">
+    <div class="ticker-label">🌍 Breaking</div>
+    <div style="overflow:hidden;flex:1;">
+      <div class="ticker-track">
+        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">Iran nuclear talks collapse — US imposes fresh sanctions</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">G7 emergency summit called over Ukraine ceasefire breakdown</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat fin">Finance</span>NIFTY 50 <span class="dn">▼ 23,847 (-1.2%)</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat fin">Finance</span>S&P 500 <span class="up">▲ 5,891 (+0.4%)</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat fin">Finance</span>GOLD <span class="up">▲ $2,387 (+0.6%)</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat ent">Ent</span><span class="breaking-text">Netflix drops surprise season — 40M streams in 24 hours</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat sports">Sports</span><span class="breaking-text">India vs Australia — IND 287/4 at stumps, Day 2</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat auto">Auto</span><span class="breaking-text">Tata Curvv EV breaks monthly sales record — 12,400 units</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat fin">Finance</span>HDFC Bank <span class="dn">▼ 52W LOW hit ₹1,723</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">WHO declares new health emergency — Southeast Asia</span></span>
+        <!-- duplicate -->
+        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">Iran nuclear talks collapse — US imposes fresh sanctions</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat fin">Finance</span>NIFTY 50 <span class="dn">▼ 23,847 (-1.2%)</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat ent">Ent</span><span class="breaking-text">Netflix drops surprise season — 40M streams in 24 hours</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat sports">Sports</span><span class="breaking-text">India vs Australia — IND 287/4 at stumps, Day 2</span></span>
+        <span class="t-sep">|</span>
+        <span class="t-item"><span class="t-cat auto">Auto</span><span class="breaking-text">Tata Curvv EV breaks monthly sales record — 12,400 units</span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ROW 2: Biggest breaking headline -->
+  <div class="ticker-row ticker-row-2">
+    <div class="ticker-label ticker-label-2">🔥 Top Story</div>
+    <div style="overflow:hidden;flex:1;">
+      <div class="ticker-track ticker-track-2">
+        <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">⚡ BREAKING: Adani Ports hits 52-week low after ₹8,200 crore deal collapse — stock down 18.4%, heaviest institutional sell-off of 2026</span>
+        <span class="t-sep" style="color:#333355;padding:0 40px;">————</span>
+        <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">⚡ BREAKING: Adani Ports hits 52-week low after ₹8,200 crore deal collapse — stock down 18.4%, heaviest institutional sell-off of 2026</span>
+        <span class="t-sep" style="color:#333355;padding:0 40px;">————</span>
+        <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">⚡ BREAKING: Adani Ports hits 52-week low after ₹8,200 crore deal collapse — stock down 18.4%, heaviest institutional sell-off of 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo">PlanetBreaker</a>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Home</a></li>
+      <li><a href="#" class="world">🌍 World</a></li>
+      <li><a href="#">📈 Finance</a></li>
+      <li><a href="#" class="sports-link">⚽ Sports</a></li>
+      <li><a href="#">🚗 Auto</a></li>
+      <li><a href="#">🎬 Entertainment</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="region-pill" id="regionPill">
+        <span class="region-flag" id="regionFlag">🌍</span>
+        <span id="regionName">Detecting...</span>
+      </div>
+      <button class="btn-save" onclick="openSaved()">🔖 Saved <span id="savedCount" style="background:var(--crimson);color:white;border-radius:10px;padding:1px 7px;font-size:10px;">3</span></button>
+      <button class="btn-alerts">🔔 Alerts</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div style="display:flex;align-items:center;gap:0;margin-bottom:16px;">
+        <div class="breaking-pill"><span class="blink-dot"></span>Breaking Now</div>
+        <span class="hero-cat-badge badge-world">🌍 World</span>
+      </div>
+      <h1 class="hero-headline">Iran nuclear talks<br>collapse — US strikes<br><span class="accent">kill 40 in Tehran</span></h1>
+      <div class="hero-meta">
+        <span>🌍 World News</span>
+        <span class="dot">●</span>
+        <span>Global Impact</span>
+        <span class="dot">●</span>
+        <span>3 minutes ago</span>
+        <span class="dot">●</span>
+        <span>Reuters, AP confirmed</span>
+      </div>
+      <p class="hero-excerpt">US forces conducted targeted strikes on Iranian nuclear facilities following the collapse of diplomatic talks in Vienna. Oil markets surged 9% instantly. Global markets in emergency response mode.</p>
+      <div class="hero-actions">
+        <button class="btn-read">Read Full Story →</button>
+        <button class="btn-bookmark-hero" onclick="toggleBookmark(this)" title="Save article">🔖</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-right-header">
+        <span class="hero-right-title">Live Feed</span>
+        <span class="live-badge"><span class="live-dot"></span>Live</span>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-world"></span>
+        <div class="feed-content">
+          <div class="feed-text">UN Security Council emergency session called — vote on Iran resolution in 2 hours</div>
+          <div class="feed-time">1 min ago · World</div>
+        </div>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-fin"></span>
+        <div class="feed-content">
+          <div class="feed-text">Crude oil surges 9.2% to $81.40 — biggest single-day jump since 2022</div>
+          <div class="feed-time">2 min ago · Finance</div>
+        </div>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-fin"></span>
+        <div class="feed-content">
+          <div class="feed-text">ONGC, Cairn India, Oil India circuit upper — buying frenzy on NSE</div>
+          <div class="feed-time">4 min ago · Finance · 🇮🇳</div>
+        </div>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-world"></span>
+        <div class="feed-content">
+          <div class="feed-text">UK, France, Germany issue joint statement condemning strikes</div>
+          <div class="feed-time">6 min ago · World</div>
+        </div>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-fin"></span>
+        <div class="feed-content">
+          <div class="feed-text">Gold hits all-time high $2,487 — safe haven buying explodes globally</div>
+          <div class="feed-time">7 min ago · Finance</div>
+        </div>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-sports"></span>
+        <div class="feed-content">
+          <div class="feed-text">ICC postpones India-Pakistan series citing travel security concerns</div>
+          <div class="feed-time">11 min ago · Sports</div>
+        </div>
+      </div>
+      <div class="feed-item">
+        <span class="feed-cat-dot dot-ent"></span>
+        <div class="feed-content">
+          <div class="feed-text">Hollywood studios suspend Iran-region releases indefinitely</div>
+          <div class="feed-time">14 min ago · Entertainment</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET STRIP -->
+<div class="market-strip">
+  <div class="market-strip-inner">
+    <div class="ms-label">Markets</div>
+    <div style="overflow:hidden;flex:1;">
+      <div class="ms-track">
+        <div class="ms-item"><span class="ms-name">NIFTY</span><span class="ms-price">23,847</span><span class="ms-change dn">▼-1.2%</span></div>
+        <div class="ms-item"><span class="ms-name">SENSEX</span><span class="ms-price">78,234</span><span class="ms-change dn">▼-0.9%</span></div>
+        <div class="ms-item"><span class="ms-name">S&P 500</span><span class="ms-price">5,891</span><span class="ms-change up">▲+0.4%</span></div>
+        <div class="ms-item"><span class="ms-name">NASDAQ</span><span class="ms-price">19,234</span><span class="ms-change up">▲+0.7%</span></div>
+        <div class="ms-item"><span class="ms-name">FTSE</span><span class="ms-price">8,102</span><span class="ms-change dn">▼-0.3%</span></div>
+        <div class="ms-item"><span class="ms-name">DAX</span><span class="ms-price">18,432</span><span class="ms-change up">▲+0.2%</span></div>
+        <div class="ms-item"><span class="ms-name">HANG SENG</span><span class="ms-price">17,823</span><span class="ms-change dn">▼-0.5%</span></div>
+        <div class="ms-item"><span class="ms-name">NIKKEI</span><span class="ms-price">38,921</span><span class="ms-change up">▲+0.8%</span></div>
+        <div class="ms-item"><span class="ms-name">KOSPI</span><span class="ms-price">2,634</span><span class="ms-change up">▲+0.3%</span></div>
+        <div class="ms-item"><span class="ms-name">USD/INR</span><span class="ms-price">83.42</span><span class="ms-change dn">▼-0.1%</span></div>
+        <div class="ms-item"><span class="ms-name">EUR/USD</span><span class="ms-price">1.0821</span><span class="ms-change up">▲+0.2%</span></div>
+        <div class="ms-item"><span class="ms-name">GBP/USD</span><span class="ms-price">1.2701</span><span class="ms-change dn">▼-0.1%</span></div>
+        <div class="ms-item"><span class="ms-name">GOLD</span><span class="ms-price">$2,387</span><span class="ms-change up">▲+0.6%</span></div>
+        <div class="ms-item"><span class="ms-name">SILVER</span><span class="ms-price">$29.84</span><span class="ms-change dn">▼-0.3%</span></div>
+        <div class="ms-item"><span class="ms-name">CRUDE</span><span class="ms-price">$74.23</span><span class="ms-change up">▲+9.1%</span></div>
+        <div class="ms-item"><span class="ms-name">BTC</span><span class="ms-price">$67,420</span><span class="ms-change up">▲+1.4%</span></div>
+        <!-- duplicate -->
+        <div class="ms-item"><span class="ms-name">NIFTY</span><span class="ms-price">23,847</span><span class="ms-change dn">▼-1.2%</span></div>
+        <div class="ms-item"><span class="ms-name">SENSEX</span><span class="ms-price">78,234</span><span class="ms-change dn">▼-0.9%</span></div>
+        <div class="ms-item"><span class="ms-name">S&P 500</span><span class="ms-price">5,891</span><span class="ms-change up">▲+0.4%</span></div>
+        <div class="ms-item"><span class="ms-name">NASDAQ</span><span class="ms-price">19,234</span><span class="ms-change up">▲+0.7%</span></div>
+        <div class="ms-item"><span class="ms-name">GOLD</span><span class="ms-price">$2,387</span><span class="ms-change up">▲+0.6%</span></div>
+        <div class="ms-item"><span class="ms-name">CRUDE</span><span class="ms-price">$74.23</span><span class="ms-change up">▲+9.1%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="content">
+
+    <!-- 4 Category Cards -->
+    <div class="sh">
+      <div class="sh-left">
+        <div class="sh-title">Top Story By Category</div>
+      </div>
+      <a href="#" class="sh-link">All Categories →</a>
+    </div>
+    <div class="four-grid">
+      <div class="cat-card fi">
+        <div class="cat-card-header">
+          <span class="cat-card-label world">🌍 World</span>
+          <span style="font-size:10px;color:var(--text-muted);">3 min ago</span>
+        </div>
+        <div class="cat-card-body">
+          <div class="cat-card-headline">US strikes Iran — oil surges 9%, global markets in shock</div>
+        </div>
+        <div class="cat-card-footer">
+          <span class="cat-card-time">Reuters confirmed</span>
+          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
+        </div>
+      </div>
+      <div class="cat-card fi">
+        <div class="cat-card-header">
+          <span class="cat-card-label fin">📈 Finance</span>
+          <span style="font-size:10px;color:var(--text-muted);">8 min ago</span>
+        </div>
+        <div class="cat-card-body">
+          <div class="cat-card-headline">Adani Ports hits 52-week low — ₹8,200Cr deal collapses</div>
+        </div>
+        <div class="cat-card-footer">
+          <span class="cat-card-time">NSE · India</span>
+          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
+        </div>
+      </div>
+      <div class="cat-card fi">
+        <div class="cat-card-header">
+          <span class="cat-card-label sports">⚽ Sports</span>
+          <span style="font-size:10px;color:var(--text-muted);">22 min ago</span>
+        </div>
+        <div class="cat-card-body">
+          <div class="cat-card-headline">India 287/4 at stumps — Kohli unbeaten 134* vs Australia</div>
+        </div>
+        <div class="cat-card-footer">
+          <span class="cat-card-time">Test Cricket · Day 2</span>
+          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
+        </div>
+      </div>
+      <div class="cat-card fi">
+        <div class="cat-card-header">
+          <span class="cat-card-label ent">🎬 Entertainment</span>
+          <span style="font-size:10px;color:var(--text-muted);">1 hr ago</span>
+        </div>
+        <div class="cat-card-body">
+          <div class="cat-card-headline">Squid Game Season 3 — 40 million streams in first 24 hours</div>
+        </div>
+        <div class="cat-card-footer">
+          <span class="cat-card-time">Netflix · Global</span>
+          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mixed Feed -->
+    <div class="sh">
+      <div class="sh-left">
+        <div class="sh-title">Latest Stories</div>
+        <span class="sh-count">247</span>
+      </div>
+      <a href="#" class="sh-link">Full Feed →</a>
+    </div>
+    <div class="cat-pills">
+      <button class="cat-pill active" onclick="setPill(this)">🔥 All</button>
+      <button class="cat-pill p-world" onclick="setPill(this)">🌍 World</button>
+      <button class="cat-pill p-fin" onclick="setPill(this)">📈 Finance</button>
+      <button class="cat-pill p-sports" onclick="setPill(this)">⚽ Sports</button>
+      <button class="cat-pill p-auto" onclick="setPill(this)">🚗 Auto</button>
+      <button class="cat-pill p-ent" onclick="setPill(this)">🎬 Entertainment</button>
+      <button class="cat-pill" onclick="setPill(this)">🔁 Viral</button>
+    </div>
+
+    <div class="news-grid">
+      <!-- Wide featured -->
+      <div class="nc wide fi">
+        <div class="nc-left">
+          <div class="nc-accent fin"></div>
+          <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
+            <span class="nc-big-num dn">-18.4%</span>
+            <span class="nc-big-icon">📉</span>
+            <span class="nc-badge nb-breaking">Breaking</span>
+          </div>
+        </div>
+        <div>
+          <div class="nc-accent fin"></div>
+          <div class="nc-body" style="padding-top:22px;">
+            <div class="nc-cat fin">📈 Finance · 🇮🇳 India · Large Cap</div>
+            <div class="nc-headline">Adani Ports crashes to 52-week low — ₹8,200 crore port acquisition deal collapses, 4.2 crore shares dumped</div>
+            <div class="nc-excerpt">Institutional investors triggered a cascading sell-off after the proposed Sri Lanka port deal fell apart over regulatory clearance. FIIs offloaded the largest single-session block in 14 months.</div>
+            <div class="nc-footer">
+              <span class="nc-time">🕐 8 minutes ago</span>
+              <span class="nc-region">NSE · BSE</span>
+            </div>
+          </div>
+          <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+        </div>
+      </div>
+
+      <!-- Regular cards -->
+      <div class="nc fi">
+        <div class="nc-accent sports"></div>
+        <div class="nc-visual" style="background:linear-gradient(135deg,#0D1F0D,#1A3A1A);">
+          <span class="nc-big-num sports">134*</span>
+          <span class="nc-big-icon">🏏</span>
+          <span class="nc-badge nb-trending">Live</span>
+        </div>
+        <div class="nc-body">
+          <div class="nc-cat sports">⚽ Sports · Cricket</div>
+          <div class="nc-headline">Kohli unbeaten 134* as India dominate Day 2 against Australia</div>
+          <div class="nc-footer">
+            <span class="nc-time">🕐 Live · updating</span>
+            <span class="nc-region">🇮🇳 vs 🇦🇺</span>
+          </div>
+        </div>
+        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+      </div>
+
+      <div class="nc fi">
+        <div class="nc-accent ent"></div>
+        <div class="nc-visual" style="background:linear-gradient(135deg,#1F0D08,#3A1A0D);">
+          <span class="nc-big-num ent">40M</span>
+          <span class="nc-big-icon">🎬</span>
+          <span class="nc-badge nb-viral">Viral</span>
+        </div>
+        <div class="nc-body">
+          <div class="nc-cat ent">🎬 Entertainment · Netflix</div>
+          <div class="nc-headline">Squid Game S3 breaks Netflix record — 40 million streams in 24 hours</div>
+          <div class="nc-footer">
+            <span class="nc-time">🕐 1 hour ago</span>
+            <span class="nc-region">🌍 Global</span>
+          </div>
+        </div>
+        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+      </div>
+
+      <!-- Social embed card -->
+      <div style="grid-column:span 2;">
+        <div class="social-card fi">
+          <div class="social-header">
+            <div class="social-source">
+              <span>𝕏</span>
+              <span>@elonmusk posted on X (Twitter)</span>
+            </div>
+            <span class="social-label">Social · Viral</span>
+          </div>
+          <div class="social-body">
+            <div class="social-quote">"The Iran situation is going to be devastating for global supply chains. Prepare for $100 oil."</div>
+            <div class="social-context">Elon Musk's post sent Tesla shares down 3.2% in after-hours trading as investors feared broader geopolitical fallout. The tweet garnered 2.4 million impressions within 40 minutes of posting, triggering sell orders across energy and auto sectors.</div>
+            <div class="social-credit">
+              <span>🔗</span>
+              <span>Source: <a href="#">Original post on X →</a> · Posted 34 minutes ago · Credit: @elonmusk</span>
+              <button class="nc-bookmark" style="position:static;background:var(--ivory-dark);" onclick="toggleBookmark(this)">🔖</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nc fi">
+        <div class="nc-accent auto"></div>
+        <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
+          <span class="nc-big-num" style="color:#8E44AD;">12,400</span>
+          <span class="nc-big-icon">🚗</span>
+          <span class="nc-badge nb-alert">Record</span>
+        </div>
+        <div class="nc-body">
+          <div class="nc-cat auto">🚗 Auto · EV · India</div>
+          <div class="nc-headline">Tata Curvv EV smashes monthly sales record — 12,400 units in June</div>
+          <div class="nc-footer">
+            <span class="nc-time">🕐 2 hours ago</span>
+            <span class="nc-region">🇮🇳 India</span>
+          </div>
+        </div>
+        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+      </div>
+
+      <div class="nc fi">
+        <div class="nc-accent viral"></div>
+        <div class="nc-visual" style="background:linear-gradient(135deg,#1F1A08,#3A2D0D);">
+          <span class="nc-big-num up">+847%</span>
+          <span class="nc-big-icon">🚀</span>
+          <span class="nc-badge nb-viral">Viral</span>
+        </div>
+        <div class="nc-body">
+          <div class="nc-cat viral">🔁 Viral · Finance · India</div>
+          <div class="nc-headline">Penny stock up 847% in 11 days — Vijay Kedia quietly accumulated ₹40 crore stake</div>
+          <div class="nc-footer">
+            <span class="nc-time">🕐 3 hours ago</span>
+            <span class="nc-region">NSE SME</span>
+          </div>
+        </div>
+        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <!-- Save / Paywall -->
+    <div class="save-card">
+      <div class="save-card-icon">🔖</div>
+      <div class="save-card-title">Your Saved Articles</div>
+      <div class="save-card-sub">You've read 3 of your 10 free articles. Upgrade for ₹29/month to save up to 31 articles.</div>
+      <div class="save-meter">
+        <span class="save-meter-label">Free articles left</span>
+        <span class="save-meter-count">7 / 10</span>
+      </div>
+      <div class="save-progress"><div class="save-progress-fill"></div></div>
+      <button class="btn-subscribe" onclick="openModal()">Starter ₹29/mo · 31 articles | Pro ₹99/mo · 600 saves</button>
+      <button class="btn-free">Continue for free →</button>
+    </div>
+
+    <!-- Trending -->
+    <div class="sc">
+      <div class="sc-title">🔥 Trending Right Now</div>
+      <div class="trend-item">
+        <span class="trend-num hot">01</span>
+        <div>
+          <div class="trend-text">US strikes Iran — oil surges 9%, gold hits all-time high</div>
+          <div class="trend-meta"><span class="trend-cat-dot" style="background:#5DADE2;"></span>World · 48.2k reads</div>
+        </div>
+      </div>
+      <div class="trend-item">
+        <span class="trend-num hot">02</span>
+        <div>
+          <div class="trend-text">Penny stock returns 847% — who bought before the run?</div>
+          <div class="trend-meta"><span class="trend-cat-dot" style="background:#E74C3C;"></span>Finance · 21.4k reads</div>
+        </div>
+      </div>
+      <div class="trend-item">
+        <span class="trend-num warm">03</span>
+        <div>
+          <div class="trend-text">Squid Game S3 breaks Netflix record globally</div>
+          <div class="trend-meta"><span class="trend-cat-dot" style="background:#F0A500;"></span>Entertainment · 18.9k reads</div>
+        </div>
+      </div>
+      <div class="trend-item">
+        <span class="trend-num warm">04</span>
+        <div>
+          <div class="trend-text">Kohli 134* — India dominate Australia on Day 2</div>
+          <div class="trend-meta"><span class="trend-cat-dot" style="background:#2ECC71;"></span>Sports · 14.1k reads</div>
+        </div>
+      </div>
+      <div class="trend-item">
+        <span class="trend-num">05</span>
+        <div>
+          <div class="trend-text">Tata Curvv EV — 12,400 units sold in June alone</div>
+          <div class="trend-meta"><span class="trend-cat-dot" style="background:#BB8FCE;"></span>Auto · 9.8k reads</div>
+        </div>
+      </div>
+      <div class="trend-item">
+        <span class="trend-num">06</span>
+        <div>
+          <div class="trend-text">Warren Buffett dumps $4.2B Apple stake — Q2 filing</div>
+          <div class="trend-meta"><span class="trend-cat-dot" style="background:#E74C3C;"></span>Finance · 8.3k reads</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Signals -->
+    <div class="sc">
+      <div class="sc-title">📊 Today's Market Signals</div>
+      <div class="signal-grid">
+        <div class="signal-box highs">
+          <div class="signal-num">41</div>
+          <div class="signal-lbl">52W Highs</div>
+        </div>
+        <div class="signal-box lows">
+          <div class="signal-num">23</div>
+          <div class="signal-lbl">52W Lows</div>
+        </div>
+        <div class="signal-box blocks">
+          <div class="signal-num">12</div>
+          <div class="signal-lbl">Block Deals</div>
+        </div>
+        <div class="signal-box insider">
+          <div class="signal-num">8</div>
+          <div class="signal-lbl">Insider Trades</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert CTA -->
+    <div class="alert-cta">
+      <div class="alert-cta-icon">🔔</div>
+      <div class="alert-cta-title">Never Miss a Break</div>
+      <p class="alert-cta-text">Get instant alerts when stocks hit 52W highs/lows, insider trades file, or a global story breaks.</p>
+      <input class="alert-input" type="email" placeholder="your@email.com">
+      <button class="alert-submit">⚡ Get Free Alerts</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">Planet<span>Breaker</span></div>
+        <p class="footer-desc">Breaking news from every corner of the planet — finance, world, sports, auto, and entertainment. Real-time signals, zero noise.</p>
+        <div class="footer-socials">
+          <div class="social-btn">𝕏</div>
+          <div class="social-btn">📱</div>
+          <div class="social-btn">✉️</div>
+          <div class="social-btn">💬</div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Markets</div>
+        <a href="#">🇮🇳 India</a>
+        <a href="#">🇺🇸 United States</a>
+        <a href="#">🇬🇧 United Kingdom</a>
+        <a href="#">🇪🇺 Europe</a>
+        <a href="#">🇨🇳 China / HK</a>
+        <a href="#">🇯🇵 Japan / Korea</a>
+        <a href="#">🇦🇺 Australia</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Signals</div>
+        <a href="#">52-Week Highs</a>
+        <a href="#">52-Week Lows</a>
+        <a href="#">Block Deals</a>
+        <a href="#">Insider Trades</a>
+        <a href="#">Rating Changes</a>
+        <a href="#">Earnings Alerts</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Topics</div>
+        <a href="#">World News</a>
+        <a href="#">Sports</a>
+        <a href="#">Auto</a>
+        <a href="#">Entertainment</a>
+        <a href="#">Viral & Trending</a>
+        <a href="#">Celebrity Finance</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <a href="#">About</a>
+        <a href="#">Advertise</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Disclaimer</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 PlanetBreaker.com — All rights reserved</span>
+      <p class="footer-disclaimer">Disclaimer: PlanetBreaker is a news and information platform only. Nothing on this site constitutes investment advice, financial guidance, or recommendations to buy or sell any security. Always consult a qualified financial advisor.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- PAYWALL MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-icon">🔖</div>
+    <div class="modal-title">You've hit your free limit</div>
+    <div class="modal-sub">You've used your 10 free articles this month. Get the PlanetBreaker Pass for ₹29/month and save up to 31 articles.</div>
+    <div class="modal-plans">
+      <div class="plan selected">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">₹99<span style="font-size:12px;font-weight:400;">/mo</span></div>
+        <div class="plan-desc">Unlimited reading + saves</div>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">₹99<span style="font-size:12px;font-weight:400;">/mo</span></div>
+        <div class="plan-desc">Save up to 600 articles + real-time alerts + no ads</div>
+      </div>
+    </div>
+    <button class="modal-cta">Subscribe Now →</button>
+    <div class="modal-skip" onclick="closeModal()">Maybe later, continue for free</div>
+  </div>
+</div>
+
+<script>
+// Region detection
+function detectRegion(){
+  const regions = {
+    'IN': {flag:'🇮🇳', name:'India'},
+    'US': {flag:'🇺🇸', name:'United States'},
+    'GB': {flag:'🇬🇧', name:'UK'},
+    'AU': {flag:'🇦🇺', name:'Australia'},
+    'CN': {flag:'🇨🇳', name:'China'},
+    'KR': {flag:'🇰🇷', name:'Korea'},
+    'JP': {flag:'🇯🇵', name:'Japan'},
+    'DE': {flag:'🇩🇪', name:'Germany'},
+    'FR': {flag:'🇫🇷', name:'France'},
+  };
+  fetch('https://ipapi.co/json/')
+    .then(r=>r.json())
+    .then(d=>{
+      const r = regions[d.country_code];
+      if(r){
+        document.getElementById('regionFlag').textContent = r.flag;
+        document.getElementById('regionName').textContent = r.name;
+      } else {
+        document.getElementById('regionFlag').textContent = '🌍';
+        document.getElementById('regionName').textContent = 'Global';
+      }
+    })
+    .catch(()=>{
+      document.getElementById('regionFlag').textContent = '🌍';
+      document.getElementById('regionName').textContent = 'Global';
+    });
+}
+detectRegion();
+
+// Bookmark toggle
+let savedCount = 3;
+function toggleBookmark(btn){
+  btn.classList.toggle('saved');
+  if(btn.classList.contains('saved')){
+    btn.textContent = '🔖';
+    savedCount++;
+    showToast('Article saved!');
+  } else {
+    btn.textContent = '🔖';
+    savedCount = Math.max(0, savedCount-1);
+    showToast('Removed from saved');
+  }
+  document.getElementById('savedCount').textContent = savedCount;
+}
+
+// Toast notification
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1A1A2E;color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(()=>t.style.opacity='0', 2000);
+}
+
+// Category pills
+function setPill(el){
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Modal
+function openModal(){ document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function openSaved(){ showToast('Opening saved articles...'); }
+
+// Plan selection
+document.querySelectorAll('.plan').forEach(p=>{
+  p.addEventListener('click',function(){
+    document.querySelectorAll('.plan').forEach(x=>x.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+</script>
+</body>
+</html>
