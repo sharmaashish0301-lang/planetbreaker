@@ -1,4 +1,4 @@
- const NEWS_API_KEY = 'ef881094b6ee4c628a1a432be2b5190f';
+const NEWS_API_KEY = 'ef881094b6ee4c628a1a432be2b5190f';
 const SUPABASE_URL = 'https://zjcwvnvnhyjjaoltybvj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
 
@@ -17,6 +17,22 @@ async function fetchNews(category, query) {
   const response = await fetch(url);
   const data = await response.json();
   return data.articles || [];
+}
+
+// Check if article already exists in Supabase
+async function articleExists(title) {
+  const shortTitle = encodeURIComponent(title.substring(0, 50));
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/articles?title=ilike.*${shortTitle}*&select=id&limit=1`,
+    {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    }
+  );
+  const data = await res.json();
+  return Array.isArray(data) && data.length > 0;
 }
 
 // Save article to Supabase
@@ -63,6 +79,9 @@ export default async function handler(req, res) {
       
       for (const article of articles.slice(0, 5)) {
         if (!article.title || article.title === '[Removed]') continue;
+        // Skip if already in database
+        const exists = await articleExists(article.title);
+        if (exists) continue;
         const status = await saveArticle(article, category);
         results.push({ category, title: article.title, status });
       }
