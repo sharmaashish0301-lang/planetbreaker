@@ -536,7 +536,7 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <div class="breaking-pill"><span class="blink-dot"></span>Breaking Now</div>
         <span class="hero-cat-badge badge-world">🌍 World</span>
       </div>
-      <h1 class="hero-headline">Iran nuclear talks<br>collapse — US strikes<br><span class="accent">kill 40 in Tehran</span></h1>
+      <h1 class="hero-headline" id="heroHeadline" style="min-height:120px;">Loading latest breaking story...</h1>
       <div class="hero-meta">
         <span>🌍 World News</span>
         <span class="dot">●</span>
@@ -546,7 +546,7 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <span class="dot">●</span>
         <span>Reuters, AP confirmed</span>
       </div>
-      <p class="hero-excerpt">US forces conducted targeted strikes on Iranian nuclear facilities following the collapse of diplomatic talks in Vienna. Oil markets surged 9% instantly. Global markets in emergency response mode.</p>
+      <p class="hero-excerpt" id="heroExcerpt">Fetching latest news...</p>
       <div class="hero-actions">
         <button class="btn-read">Read Full Story →</button>
         <button class="btn-bookmark-hero" onclick="toggleBookmark(this)" title="Save article">🔖</button>
@@ -655,59 +655,12 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
       </div>
       <a href="#" class="sh-link">All Categories →</a>
     </div>
-    <div class="four-grid">
-      <div class="cat-card fi">
-        <div class="cat-card-header">
-          <span class="cat-card-label world">🌍 World</span>
-          <span style="font-size:10px;color:var(--text-muted);">3 min ago</span>
-        </div>
-        <div class="cat-card-body">
-          <div class="cat-card-headline">US strikes Iran — oil surges 9%, global markets in shock</div>
-        </div>
-        <div class="cat-card-footer">
-          <span class="cat-card-time">Reuters confirmed</span>
-          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
-        </div>
-      </div>
-      <div class="cat-card fi">
-        <div class="cat-card-header">
-          <span class="cat-card-label fin">📈 Finance</span>
-          <span style="font-size:10px;color:var(--text-muted);">8 min ago</span>
-        </div>
-        <div class="cat-card-body">
-          <div class="cat-card-headline">Adani Ports hits 52-week low — ₹8,200Cr deal collapses</div>
-        </div>
-        <div class="cat-card-footer">
-          <span class="cat-card-time">NSE · India</span>
-          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
-        </div>
-      </div>
-      <div class="cat-card fi">
-        <div class="cat-card-header">
-          <span class="cat-card-label sports">⚽ Sports</span>
-          <span style="font-size:10px;color:var(--text-muted);">22 min ago</span>
-        </div>
-        <div class="cat-card-body">
-          <div class="cat-card-headline">India 287/4 at stumps — Kohli unbeaten 134* vs Australia</div>
-        </div>
-        <div class="cat-card-footer">
-          <span class="cat-card-time">Test Cricket · Day 2</span>
-          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
-        </div>
-      </div>
-      <div class="cat-card fi">
-        <div class="cat-card-header">
-          <span class="cat-card-label ent">🎬 Entertainment</span>
-          <span style="font-size:10px;color:var(--text-muted);">1 hr ago</span>
-        </div>
-        <div class="cat-card-body">
-          <div class="cat-card-headline">Squid Game Season 3 — 40 million streams in first 24 hours</div>
-        </div>
-        <div class="cat-card-footer">
-          <span class="cat-card-time">Netflix · Global</span>
-          <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
-        </div>
-      </div>
+    <div class="four-grid" id="fourGrid">
+      <!-- Loading skeletons -->
+      <div class="cat-card" style="background:var(--ivory-dark);"><div style="padding:16px;"><div style="height:12px;background:var(--border);border-radius:4px;margin-bottom:8px;width:60%;"></div><div style="height:40px;background:var(--border);border-radius:4px;opacity:0.5;"></div></div></div>
+      <div class="cat-card" style="background:var(--ivory-dark);"><div style="padding:16px;"><div style="height:12px;background:var(--border);border-radius:4px;margin-bottom:8px;width:60%;"></div><div style="height:40px;background:var(--border);border-radius:4px;opacity:0.5;"></div></div></div>
+      <div class="cat-card" style="background:var(--ivory-dark);"><div style="padding:16px;"><div style="height:12px;background:var(--border);border-radius:4px;margin-bottom:8px;width:60%;"></div><div style="height:40px;background:var(--border);border-radius:4px;opacity:0.5;"></div></div></div>
+      <div class="cat-card" style="background:var(--ivory-dark);"><div style="padding:16px;"><div style="height:12px;background:var(--border);border-radius:4px;margin-bottom:8px;width:60%;"></div><div style="height:40px;background:var(--border);border-radius:4px;opacity:0.5;"></div></div></div>
     </div>
 
     <!-- Mixed Feed -->
@@ -728,126 +681,18 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
       <button class="cat-pill" onclick="setPill(this)">🔁 Viral</button>
     </div>
 
-    <div class="news-grid">
-      <!-- Wide featured -->
-      <div class="nc wide fi">
-        <div class="nc-left">
-          <div class="nc-accent fin"></div>
-          <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
-            <span class="nc-big-num dn">-18.4%</span>
-            <span class="nc-big-icon">📉</span>
-            <span class="nc-badge nb-breaking">Breaking</span>
-          </div>
-        </div>
-        <div>
-          <div class="nc-accent fin"></div>
-          <div class="nc-body" style="padding-top:22px;">
-            <div class="nc-cat fin">📈 Finance · 🇮🇳 India · Large Cap</div>
-            <div class="nc-headline">Adani Ports crashes to 52-week low — ₹8,200 crore port acquisition deal collapses, 4.2 crore shares dumped</div>
-            <div class="nc-excerpt">Institutional investors triggered a cascading sell-off after the proposed Sri Lanka port deal fell apart over regulatory clearance. FIIs offloaded the largest single-session block in 14 months.</div>
-            <div class="nc-footer">
-              <span class="nc-time">🕐 8 minutes ago</span>
-              <span class="nc-region">NSE · BSE</span>
-            </div>
-          </div>
-          <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+    <div class="news-grid" id="newsGrid">
+      <!-- Loading skeletons shown until real articles load -->
+      <div class="nc wide" style="background:var(--ivory-dark);">
+        <div style="padding:24px;flex:1;">
+          <div style="height:14px;background:var(--border);border-radius:4px;margin-bottom:12px;width:30%;"></div>
+          <div style="height:28px;background:var(--border);border-radius:4px;margin-bottom:8px;"></div>
+          <div style="height:28px;background:var(--border);border-radius:4px;margin-bottom:8px;width:80%;"></div>
+          <div style="height:14px;background:var(--border);border-radius:4px;width:50%;opacity:0.5;"></div>
         </div>
       </div>
-
-      <!-- Regular cards -->
-      <div class="nc fi">
-        <div class="nc-accent sports"></div>
-        <div class="nc-visual" style="background:linear-gradient(135deg,#0D1F0D,#1A3A1A);">
-          <span class="nc-big-num sports">134*</span>
-          <span class="nc-big-icon">🏏</span>
-          <span class="nc-badge nb-trending">Live</span>
-        </div>
-        <div class="nc-body">
-          <div class="nc-cat sports">⚽ Sports · Cricket</div>
-          <div class="nc-headline">Kohli unbeaten 134* as India dominate Day 2 against Australia</div>
-          <div class="nc-footer">
-            <span class="nc-time">🕐 Live · updating</span>
-            <span class="nc-region">🇮🇳 vs 🇦🇺</span>
-          </div>
-        </div>
-        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
-      </div>
-
-      <div class="nc fi">
-        <div class="nc-accent ent"></div>
-        <div class="nc-visual" style="background:linear-gradient(135deg,#1F0D08,#3A1A0D);">
-          <span class="nc-big-num ent">40M</span>
-          <span class="nc-big-icon">🎬</span>
-          <span class="nc-badge nb-viral">Viral</span>
-        </div>
-        <div class="nc-body">
-          <div class="nc-cat ent">🎬 Entertainment · Netflix</div>
-          <div class="nc-headline">Squid Game S3 breaks Netflix record — 40 million streams in 24 hours</div>
-          <div class="nc-footer">
-            <span class="nc-time">🕐 1 hour ago</span>
-            <span class="nc-region">🌍 Global</span>
-          </div>
-        </div>
-        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
-      </div>
-
-      <!-- Social embed card -->
-      <div style="grid-column:span 2;">
-        <div class="social-card fi">
-          <div class="social-header">
-            <div class="social-source">
-              <span>𝕏</span>
-              <span>@elonmusk posted on X (Twitter)</span>
-            </div>
-            <span class="social-label">Social · Viral</span>
-          </div>
-          <div class="social-body">
-            <div class="social-quote">"The Iran situation is going to be devastating for global supply chains. Prepare for $100 oil."</div>
-            <div class="social-context">Elon Musk's post sent Tesla shares down 3.2% in after-hours trading as investors feared broader geopolitical fallout. The tweet garnered 2.4 million impressions within 40 minutes of posting, triggering sell orders across energy and auto sectors.</div>
-            <div class="social-credit">
-              <span>🔗</span>
-              <span>Source: <a href="#">Original post on X →</a> · Posted 34 minutes ago · Credit: @elonmusk</span>
-              <button class="nc-bookmark" style="position:static;background:var(--ivory-dark);" onclick="toggleBookmark(this)">🔖</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="nc fi">
-        <div class="nc-accent auto"></div>
-        <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
-          <span class="nc-big-num" style="color:#8E44AD;">12,400</span>
-          <span class="nc-big-icon">🚗</span>
-          <span class="nc-badge nb-alert">Record</span>
-        </div>
-        <div class="nc-body">
-          <div class="nc-cat auto">🚗 Auto · EV · India</div>
-          <div class="nc-headline">Tata Curvv EV smashes monthly sales record — 12,400 units in June</div>
-          <div class="nc-footer">
-            <span class="nc-time">🕐 2 hours ago</span>
-            <span class="nc-region">🇮🇳 India</span>
-          </div>
-        </div>
-        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
-      </div>
-
-      <div class="nc fi">
-        <div class="nc-accent viral"></div>
-        <div class="nc-visual" style="background:linear-gradient(135deg,#1F1A08,#3A2D0D);">
-          <span class="nc-big-num up">+847%</span>
-          <span class="nc-big-icon">🚀</span>
-          <span class="nc-badge nb-viral">Viral</span>
-        </div>
-        <div class="nc-body">
-          <div class="nc-cat viral">🔁 Viral · Finance · India</div>
-          <div class="nc-headline">Penny stock up 847% in 11 days — Vijay Kedia quietly accumulated ₹40 crore stake</div>
-          <div class="nc-footer">
-            <span class="nc-time">🕐 3 hours ago</span>
-            <span class="nc-region">NSE SME</span>
-          </div>
-        </div>
-        <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
-      </div>
+      <div class="nc" style="background:var(--ivory-dark);min-height:200px;"></div>
+      <div class="nc" style="background:var(--ivory-dark);min-height:200px;"></div>
     </div>
   </div>
 
