@@ -4,73 +4,67 @@ const SUPABASE_URL = 'https://zjcwvnvnhyjjaoltybvj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
 
 // ══════════════════════════════════════════════
-//  GUARDIAN CATEGORY MAPPING
-//  Guardian has built-in sections — no guessing
+//  GUARDIAN SECTIONS → CATEGORIES
 // ══════════════════════════════════════════════
 const GUARDIAN_SECTIONS = [
-  { section: 'world',       category: 'world'         },
-  { section: 'business',    category: 'finance'        },
-  { section: 'money',       category: 'finance'        },
-  { section: 'sport',       category: 'sports'         },
-  { section: 'football',    category: 'sports'         },
-  { section: 'technology',  category: 'auto'           },
-  { section: 'film',        category: 'entertainment'  },
-  { section: 'music',       category: 'entertainment'  },
-  { section: 'culture',     category: 'entertainment'  },
-  { section: 'media',       category: 'entertainment'  },
+  { section: 'world',        category: 'world'        },
+  { section: 'business',     category: 'finance'      },
+  { section: 'money',        category: 'finance'      },
+  { section: 'sport',        category: 'sports'       },
+  { section: 'football',     category: 'sports'       },
+  { section: 'film',         category: 'entertainment'},
+  { section: 'music',        category: 'entertainment'},
+  { section: 'culture',      category: 'entertainment'},
+  { section: 'technology',   category: 'auto'         },
+  { section: 'environment',  category: 'world'        },
 ];
 
 // ══════════════════════════════════════════════
-//  SMART CATEGORY DETECTOR (fallback)
+//  CATEGORY DETECTOR
 // ══════════════════════════════════════════════
 function detectCategory(title, description) {
   const text = (title + ' ' + (description || '')).toLowerCase();
-  if (/world cup|fifa|cricket|premier league|nba|nfl|tennis|olympics|tournament|quarterfinal|semifinal|match|football|rugby|athlete|wicket|goal|innings|ipl|champions league|euro|copa america|t20|scorer/.test(text)) return 'sports';
-  if (/stock|share|market|nifty|sensex|nasdaq|earnings|ipo|crypto|bitcoin|finance|economy|gdp|inflation|fed|trading|investor|rupee|dollar|rbi|sebi|merger|revenue|profit/.test(text)) return 'finance';
-  if (/car|suv|ev|electric vehicle|automobile|vehicle launch|bmw|toyota|tesla|tata motors|hyundai|maruti|motor show|auto expo|mahindra|mercedes|audi/.test(text)) return 'auto';
+  if (/world cup|fifa|cricket|premier league|nba|nfl|tennis|olympics|tournament|quarterfinal|semifinal|football match|rugby|athlete|wicket|goal|innings|ipl|champions league|copa america|t20/.test(text)) return 'sports';
+  if (/stock|share|market|nifty|sensex|nasdaq|earnings|ipo|crypto|bitcoin|finance|economy|gdp|inflation|fed|trading|investor|rupee|dollar|rbi|sebi|revenue|profit/.test(text)) return 'finance';
+  if (/car|suv|ev|electric vehicle|automobile|vehicle launch|bmw|toyota|tesla|tata motors|hyundai|maruti|motor show|mahindra|mercedes|audi/.test(text)) return 'auto';
   if (/netflix|movie|bollywood|hollywood|celebrity|box office|oscar|grammy|streaming|web series|album|actor|actress|director|trailer|concert|music|award/.test(text)) return 'entertainment';
   return 'world';
 }
 
+// Strip HTML tags from text
+function stripHtml(html) {
+  return (html || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+}
+
 // ══════════════════════════════════════════════
 //  GEMINI ARTICLE WRITER
-//  Writes 400-500 word ORIGINAL article
-//  Based on headline + summary only
-//  Never copies Guardian text
 // ══════════════════════════════════════════════
 async function writeWithGemini(title, summary, category, source) {
-  const categoryContext = {
-    world: 'international news and global affairs',
-    finance: 'financial markets and economic news',
-    sports: 'sports news and match coverage',
-    auto: 'automotive industry news',
-    entertainment: 'entertainment and celebrity news'
-  };
+  if (!GEMINI_KEY) {
+    console.log('No Gemini key found');
+    return summary;
+  }
 
-  const prompt = `You are a professional news journalist writing for PlanetBreaker, a global breaking news website.
-
-Write a complete, original 400-500 word news article based ONLY on the facts below.
-Do NOT copy any text from the source. Write in your own words entirely.
-Do NOT invent facts, quotes, or statistics not mentioned below.
-If details are limited, acknowledge it is a developing story.
+  const cleanSummary = stripHtml(summary);
+  
+  const prompt = `You are a professional news journalist. Write a complete 400-500 word original news article.
 
 HEADLINE: ${title}
-SUMMARY: ${summary}
-TOPIC: ${categoryContext[category] || 'general news'}
-ORIGINAL SOURCE: ${source}
+SUMMARY: ${cleanSummary}
+SOURCE: ${source}
+CATEGORY: ${category}
 
 RULES:
-- Strong opening sentence with the key fact
-- Explain why this matters to readers globally  
-- Use "according to ${source}" when stating facts
-- Add relevant background context you know about this topic
-- End with what happens next / what to watch for
-- Never write "In conclusion" or "In summary"
-- Add "DEVELOPING STORY — This article will be updated as more details emerge." if it just happened
-- Write in third person
-- Do not mention PlanetBreaker in the article
+- Write entirely in your own words, do not copy the summary
+- Start with a strong news opening sentence
+- Use "according to ${source}" when citing facts  
+- Add global context and why this matters
+- End with what to watch next
+- Third person throughout
+- No "In conclusion" or "In summary"
+- If breaking news, end with: DEVELOPING STORY — This article will be updated as more details emerge.
 
-Write the article now, nothing else:`;
+Article:`;
 
   try {
     const response = await fetch(
@@ -80,26 +74,42 @@ Write the article now, nothing else:`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800,
-          }
+          generationConfig: { temperature: 0.7, maxOutputTokens: 800 }
         })
       }
     );
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.log('Gemini HTTP error:', response.status, errText);
+      return cleanSummary;
+    }
+
     const data = await response.json();
+    
+    if (data.error) {
+      console.log('Gemini API error:', JSON.stringify(data.error));
+      return cleanSummary;
+    }
+
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return text || summary;
+    
+    if (!text) {
+      console.log('Gemini no text in response:', JSON.stringify(data).substring(0, 300));
+      return cleanSummary;
+    }
+
+    console.log('Gemini success, article length:', text.length);
+    return text;
+
   } catch(e) {
-    console.log('Gemini error:', e.message);
-    return summary;
+    console.log('Gemini fetch error:', e.message);
+    return cleanSummary;
   }
 }
 
 // ══════════════════════════════════════════════
-//  GUARDIAN API FETCH
-//  Returns articles with headline + standfirst
-//  Proper categories built in
+//  GUARDIAN FETCH
 // ══════════════════════════════════════════════
 async function fetchFromGuardian(section, category) {
   try {
@@ -109,8 +119,8 @@ async function fetchFromGuardian(section, category) {
     const results = data.response?.results || [];
 
     return results.map(r => ({
-      title: r.webTitle,
-      summary: r.fields?.standfirst || '',
+      title: stripHtml(r.webTitle),
+      summary: stripHtml(r.fields?.standfirst || ''),
       url: r.webUrl,
       source: 'The Guardian',
       publishedAt: r.webPublicationDate,
@@ -123,23 +133,27 @@ async function fetchFromGuardian(section, category) {
 }
 
 // ══════════════════════════════════════════════
-//  GDELT FETCH
-//  Real-time global breaking events
+//  GDELT FETCH — English only, breaking events
 // ══════════════════════════════════════════════
 async function fetchFromGDELT(query) {
   try {
-    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&maxrecords=5&sort=datedesc&format=json`;
+    // sourcelang:english forces English articles only
+    const encodedQuery = encodeURIComponent(`${query} sourcelang:english`);
+    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodedQuery}&mode=artlist&maxrecords=5&sort=datedesc&format=json`;
     const response = await fetch(url);
     if (!response.ok) return [];
     const data = await response.json();
-    return (data.articles || []).map(a => ({
-      title: a.title,
-      summary: `Breaking news reported by ${a.domain}.`,
-      url: a.url,
-      source: a.domain || 'News',
-      publishedAt: a.seendatetime || new Date().toISOString(),
-      category: detectCategory(a.title, '')
-    }));
+
+    return (data.articles || [])
+      .filter(a => a.title && /[a-zA-Z]/.test(a.title)) // English titles only
+      .map(a => ({
+        title: a.title,
+        summary: `Breaking news reported by ${a.domain}.`,
+        url: a.url,
+        source: a.domain || 'News',
+        publishedAt: a.seendatetime || new Date().toISOString(),
+        category: detectCategory(a.title, '')
+      }));
   } catch(e) {
     console.log('GDELT error:', e.message);
     return [];
@@ -195,24 +209,25 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
+  console.log('news.js called — Guardian key exists:', !!GUARDIAN_KEY, '— Gemini key exists:', !!GEMINI_KEY);
+
   try {
     const results = [];
 
-    // ── STEP 1: Guardian API (primary source) ──
+    // STEP 1: Guardian API
     for (const { section, category } of GUARDIAN_SECTIONS) {
       const articles = await fetchFromGuardian(section, category);
 
-      for (const article of articles.slice(0, 3)) {
+      for (const article of articles.slice(0, 2)) {
         if (!article.title) continue;
         const exists = await articleExists(article.title);
         if (exists) continue;
 
-        // Gemini writes full original article
         const fullContent = await writeWithGemini(
           article.title,
           article.summary,
-          article.category,
-          article.source
+          category,
+          'The Guardian'
         );
 
         const saved = await saveArticle({ ...article, content: fullContent });
@@ -220,19 +235,19 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── STEP 2: GDELT for breaking global events ──
+    // STEP 2: GDELT — breaking events English only
     const gdeltQueries = [
-      'FIFA World Cup 2026 quarterfinal',
-      'breaking news explosion attack',
-      'stock market crash today',
-      'earthquake flood disaster',
-      'election results coup'
+      'FIFA World Cup 2026 semifinal quarterfinal',
+      'breaking news attack explosion',
+      'stock market crash surge',
+      'earthquake disaster flood',
+      'election results political crisis'
     ];
 
     for (const query of gdeltQueries) {
       const articles = await fetchFromGDELT(query);
 
-      for (const article of articles.slice(0, 2)) {
+      for (const article of articles.slice(0, 1)) {
         if (!article.title) continue;
         const exists = await articleExists(article.title);
         if (exists) continue;
@@ -249,7 +264,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── STEP 3: Return latest articles ──
+    // STEP 3: Return latest
     const latestResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/articles?select=id,title,content,category,region,source,source_url,published_at,read_count,is_breaking&order=published_at.desc&limit=50`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
@@ -267,6 +282,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    console.log('Main handler error:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 }
