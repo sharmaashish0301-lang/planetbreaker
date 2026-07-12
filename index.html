@@ -708,7 +708,7 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <span class="save-meter-count">7 / 10</span>
       </div>
       <div class="save-progress"><div class="save-progress-fill"></div></div>
-      <button class="btn-subscribe" onclick="openModal()">Starter ₹29/mo · 31 articles | Pro ₹99/mo · 600 saves</button>
+      <button class="btn-subscribe" onclick="openModal()">Get PlanetBreaker Pass — ₹29/month</button>
       <button class="btn-free">Continue for free →</button>
     </div>
 
@@ -1060,7 +1060,7 @@ function updateNewsGrid(articles) {
   const top = articles[0];
   const topCat = top.category || 'world';
   html += `
-  <div class="nc wide">
+  <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
       <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
@@ -1080,7 +1080,7 @@ function updateNewsGrid(articles) {
           <span class="nc-region">${top.source || 'News'}</span>
         </div>
       </div>
-      <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+      <button class="nc-bookmark" onclick="event.stopPropagation();toggleBookmark(this)">🔖</button>
     </div>
   </div>`;
 
@@ -1088,7 +1088,7 @@ function updateNewsGrid(articles) {
   articles.slice(1, 5).forEach(article => {
     const cat = article.category || 'world';
     html += `
-    <div class="nc">
+    <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
       <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
         <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
@@ -1102,7 +1102,7 @@ function updateNewsGrid(articles) {
           <span class="nc-region">${article.source || 'News'}</span>
         </div>
       </div>
-      <button class="nc-bookmark" onclick="toggleBookmark(this)">🔖</button>
+      <button class="nc-bookmark" onclick="event.stopPropagation();toggleBookmark(this)">🔖</button>
     </div>`;
   });
 
@@ -1185,9 +1185,11 @@ function updateCategoryCards(articles) {
 
   let html = '';
   categories.forEach(cat => {
-    const article = articles.find(a => a.category === cat) || articles[0];
+    // Find article matching this exact category
+    const article = articles.find(a => a.category === cat);
+    if (!article) return; // Skip if no article for this category
     html += `
-    <div class="cat-card fi">
+    <div class="cat-card fi" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="cat-card-header">
         <span class="cat-card-label ${cat}">${catIcons[cat]} ${cat.toUpperCase()}</span>
         <span style="font-size:10px;color:var(--text-muted);">${timeAgo(article.published_at)}</span>
@@ -1197,7 +1199,7 @@ function updateCategoryCards(articles) {
       </div>
       <div class="cat-card-footer">
         <span class="cat-card-time">${article.source || 'News'}</span>
-        <button class="bookmark-btn" onclick="toggleBookmark(this)">🔖</button>
+        <button class="bookmark-btn" onclick="event.stopPropagation();toggleBookmark(this)">🔖</button>
       </div>
     </div>`;
   });
@@ -1316,6 +1318,20 @@ async function initLiveData() {
   await fetchNews();
   console.log('PlanetBreaker: Live data loaded!');
 }
+
+
+// ── CLICK HANDLER — event delegation for all article cards ──
+document.addEventListener('click', function(e) {
+  // Don't fire if bookmark button clicked
+  if (e.target.closest('.nc-bookmark, .bookmark-btn')) return;
+  // Find closest card with article ID
+  const card = e.target.closest('[data-article-id]');
+  if (!card) return;
+  const articleId = card.getAttribute('data-article-id');
+  if (articleId && articleId !== 'undefined') {
+    window.location.href = '/article.html?id=' + articleId;
+  }
+});
 
 // Load on page start
 window.addEventListener('load', initLiveData);
