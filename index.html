@@ -1014,11 +1014,12 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
     <div class="modal-icon">🔖</div>
     <div class="modal-title">You've hit your free limit</div>
     <div class="modal-sub">You've used your 10 free articles this month. Get the PlanetBreaker Pass for ₹29/month and save up to 31 articles.</div>
-    <div style="background:var(--ivory);border-radius:12px;padding:24px;margin-bottom:20px;border:2px solid var(--crimson);">
-  <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--crimson);margin-bottom:6px;">PlanetBreaker Pass</div>
-  <div style="font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;color:var(--charcoal);margin-bottom:4px;">₹29<span style="font-size:14px;font-weight:400;color:var(--text-muted);">/month</span></div>
-  <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Read & save up to <strong>31 articles</strong> every month. Cancel anytime.</div>
-</div>
+    <div class="modal-plans">
+      <div class="plan selected">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">₹99<span style="font-size:12px;font-weight:400;">/mo</span></div>
+        <div class="plan-desc">Unlimited reading + saves</div>
+      </div>
       <div class="plan">
         <div class="plan-name">Pro</div>
         <div class="plan-price">₹99<span style="font-size:12px;font-weight:400;">/mo</span></div>
@@ -1161,15 +1162,17 @@ function updateTicker(markets) {
 }
 
 // ── FETCH LIVE NEWS ──
+// Uses fast /api/articles endpoint (Supabase only, instant)
+// Triggers /api/news in background to fetch fresh stories
 async function fetchNews() {
   try {
-    const res = await fetch(`${API_BASE}/api/news`);
+    // Step 1: Load existing articles instantly from Supabase
+    const res = await fetch(`${API_BASE}/api/articles?limit=50`);
     const data = await res.json();
     if (!data.success || !data.articles.length) return;
     
-    // Remove duplicates first
     const articles = deduplicateArticles(data.articles);
-    console.log(`PlanetBreaker: ${articles.length} unique articles loaded`);
+    console.log(`PlanetBreaker: ${articles.length} articles loaded instantly`);
     
     updateHero(articles);
     updateNewsGrid(articles);
@@ -1177,6 +1180,10 @@ async function fetchNews() {
     updateTrending(articles);
     updateCategoryCards(articles);
     updateTickerWithNews(articles);
+
+    // Step 2: Trigger background fetch for new articles (silent)
+    fetch(`${API_BASE}/api/news`).catch(() => {});
+    
   } catch(e) {
     console.log('News fetch error:', e);
   }
@@ -1208,7 +1215,7 @@ function updateNewsGrid(articles) {
   const top = articles[0];
   const topCat = top.category || 'world';
   html += `
-  <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
+  <div class="nc wide">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
       <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
@@ -1236,7 +1243,7 @@ function updateNewsGrid(articles) {
   articles.slice(1, 5).forEach(article => {
     const cat = article.category || 'world';
     html += `
-    <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
+    <div class="nc">
       <div class="nc-accent ${cat}"></div>
       <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
         <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
@@ -1335,7 +1342,7 @@ function updateCategoryCards(articles) {
   categories.forEach(cat => {
     const article = articles.find(a => a.category === cat) || articles[0];
     html += `
-    <div class="cat-card fi" data-article-id="${article.id}" style="cursor:pointer;">
+    <div class="cat-card fi">
       <div class="cat-card-header">
         <span class="cat-card-label ${cat}">${catIcons[cat]} ${cat.toUpperCase()}</span>
         <span style="font-size:10px;color:var(--text-muted);">${timeAgo(article.published_at)}</span>
@@ -1464,15 +1471,7 @@ async function initLiveData() {
   await fetchNews();
   console.log('PlanetBreaker: Live data loaded!');
 }
-// Event delegation — catches clicks on all article cards
-document.addEventListener('click', function(e) {
-  const card = e.target.closest('.nc, .cat-card');
-  if (!card) return;
-  // Don't fire if bookmark button clicked
-  if (e.target.closest('.nc-bookmark, .bookmark-btn')) return;
-  const articleId = card.dataset.articleId;
-  if (articleId) window.location.href = `/article.html?id=${articleId}`;
-});
+
 // Load on page start
 window.addEventListener('load', initLiveData);
 
