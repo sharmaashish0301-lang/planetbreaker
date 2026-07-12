@@ -1209,7 +1209,7 @@ function updateNewsGrid(articles) {
   const top = articles[0];
   const topCat = top.category || 'world';
   html += `
-  <div class="nc wide">
+  <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
       <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
@@ -1237,7 +1237,7 @@ function updateNewsGrid(articles) {
   articles.slice(1, 5).forEach(article => {
     const cat = article.category || 'world';
     html += `
-    <div class="nc">
+    <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
       <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
         <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
@@ -1336,7 +1336,7 @@ function updateCategoryCards(articles) {
   categories.forEach(cat => {
     const article = articles.find(a => a.category === cat) || articles[0];
     html += `
-    <div class="cat-card fi">
+    <div class="cat-card fi" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="cat-card-header">
         <span class="cat-card-label ${cat}">${catIcons[cat]} ${cat.toUpperCase()}</span>
         <span style="font-size:10px;color:var(--text-muted);">${timeAgo(article.published_at)}</span>
@@ -1465,7 +1465,15 @@ async function initLiveData() {
   await fetchNews();
   console.log('PlanetBreaker: Live data loaded!');
 }
-
+// Event delegation — catches clicks on all article cards
+document.addEventListener('click', function(e) {
+  const card = e.target.closest('.nc, .cat-card');
+  if (!card) return;
+  // Don't fire if bookmark button clicked
+  if (e.target.closest('.nc-bookmark, .bookmark-btn')) return;
+  const articleId = card.dataset.articleId;
+  if (articleId) window.location.href = `/article.html?id=${articleId}`;
+});
 // Load on page start
 window.addEventListener('load', initLiveData);
 
