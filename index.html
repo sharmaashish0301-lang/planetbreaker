@@ -1035,7 +1035,7 @@ async function fetchNews() {
 }
 
 function updateNewsGrid(articles) {
-  const grid = document.querySelector('.news-grid');
+  const grid = document.getElementById('newsGrid') || document.querySelector('.news-grid');
   if (!grid || !articles.length) return;
 
   const catColors = {
@@ -1175,7 +1175,7 @@ function updateTrending(articles) {
 }
 
 function updateCategoryCards(articles) {
-  const grid = document.querySelector('.four-grid');
+  const grid = document.getElementById('fourGrid') || document.querySelector('.four-grid');
   if (!grid || !articles.length) return;
 
   const categories = ['world', 'finance', 'sports', 'entertainment'];
@@ -1269,11 +1269,11 @@ function updateHero(articles) {
   };
 
   // Update hero headline
-  const headline = document.querySelector('.hero-headline');
+  const headline = document.getElementById('heroHeadline') || document.querySelector('.hero-headline');
   if (headline) headline.innerHTML = top.title;
 
   // Update hero excerpt
-  const excerpt = document.querySelector('.hero-excerpt');
+  const excerpt = document.getElementById('heroExcerpt') || document.querySelector('.hero-excerpt');
   if (excerpt) excerpt.textContent = (top.content || top.title).substring(0, 200) + '...';
 
   // Update hero meta
