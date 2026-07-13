@@ -19,10 +19,15 @@ const GUARDIAN_SECTIONS = [
 // ══════════════════════════════════════════════
 function detectCategory(title, description) {
   const text = (title + ' ' + (description || '')).toLowerCase();
-  if (/world cup|fifa|cricket|premier league|nba|nfl|tennis|olympics|tournament|quarterfinal|semifinal|football match|rugby|athlete|wicket|goal|innings|ipl|champions league|copa america|t20/.test(text)) return 'sports';
-  if (/stock|share|market|nifty|sensex|nasdaq|earnings|ipo|crypto|bitcoin|finance|economy|gdp|inflation|fed|trading|investor|rupee|dollar|rbi|sebi|revenue|profit/.test(text)) return 'finance';
-  if (/car|suv|ev|electric vehicle|automobile|vehicle launch|bmw|toyota|tesla|tata motors|hyundai|maruti|motor show|mahindra|mercedes|audi/.test(text)) return 'auto';
-  if (/netflix|movie|bollywood|hollywood|celebrity|box office|oscar|grammy|streaming|web series|album|actor|actress|director|trailer|concert|music|award/.test(text)) return 'entertainment';
+  // Sports - specific match/player keywords only
+  if (/world cup|fifa|cricket|premier league|nba|nfl|tennis|olympics|tournament|quarterfinal|semifinal|football match|rugby|wicket|innings|ipl|champions league|copa america|t20|scorer|grand slam/.test(text)) return 'sports';
+  // Finance - money and markets
+  if (/stock price|share price|market crash|nifty|sensex|nasdaq|earnings report|ipo|crypto|bitcoin|interest rate|federal reserve|hedge fund|trading|investor|rupee|dollar|rbi|sebi|merger|acquisition|bond yield/.test(text)) return 'finance';
+  // Auto - vehicles only, NOT AI or general tech
+  if (/car launch|new car model|electric vehicle sales|ev range|suv launch|bmw new|toyota new|tata motors|hyundai launch|maruti|motor show|auto expo|mahindra new|vehicle recall|miles per gallon/.test(text)) return 'auto';
+  // Entertainment
+  if (/netflix|amazon prime|box office|bollywood|hollywood|celebrity|oscar|grammy|bafta|streaming show|web series|album release|film review|concert tour|music award/.test(text)) return 'entertainment';
+  // Everything else is world - AI, health, politics, science, society
   return 'world';
 }
 
@@ -155,15 +160,27 @@ async function fetchFromGuardian(section, category) {
     const data = await response.json();
     const results = data.response?.results || [];
 
-    return results.map(r => ({
-      title: stripHtml(r.webTitle),
-      summary: stripHtml(r.fields?.standfirst || ''),
-      url: r.webUrl,
-      source: 'The Guardian',
-      publishedAt: r.webPublicationDate,
-      category: category,
-      image_url: r.fields?.thumbnail || ''
-    }));
+    return results.map(r => {
+      const title = stripHtml(r.webTitle);
+      const summary = stripHtml(r.fields?.standfirst || '');
+      // Smart category detection overrides Guardian section
+      // Guardian 'technology' section catches non-tech stories
+      // detectCategory reads the actual content to assign correctly
+      const smartCategory = detectCategory(title, summary);
+      // Only use Guardian section category if smart detector says 'world'
+      // and Guardian section is specific (sports/finance/entertainment)
+      const specificSections = ['sport', 'football', 'business', 'money', 'film', 'music', 'culture', 'media'];
+      const finalCategory = specificSections.includes(section) ? category : smartCategory;
+      return {
+        title,
+        summary,
+        url: r.webUrl,
+        source: 'The Guardian',
+        publishedAt: r.webPublicationDate,
+        category: finalCategory,
+        image_url: r.fields?.thumbnail || ''
+      };
+    });
   } catch(e) {
     console.log('Guardian error:', e.message);
     return [];
