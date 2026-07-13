@@ -7,16 +7,11 @@ const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
 //  GUARDIAN SECTIONS → CATEGORIES
 // ══════════════════════════════════════════════
 const GUARDIAN_SECTIONS = [
-  { section: 'world',        category: 'world'        },
-  { section: 'business',     category: 'finance'      },
-  { section: 'money',        category: 'finance'      },
-  { section: 'sport',        category: 'sports'       },
-  { section: 'football',     category: 'sports'       },
-  { section: 'film',         category: 'entertainment'},
-  { section: 'music',        category: 'entertainment'},
-  { section: 'culture',      category: 'entertainment'},
-  { section: 'technology',   category: 'auto'         },
-  { section: 'environment',  category: 'world'        },
+  { section: 'world',    category: 'world'         },
+  { section: 'business', category: 'finance'       },
+  { section: 'sport',    category: 'sports'        },
+  { section: 'film',     category: 'entertainment' },
+  { section: 'technology', category: 'auto'        },
 ];
 
 // ══════════════════════════════════════════════
@@ -218,7 +213,7 @@ export default async function handler(req, res) {
     for (const { section, category } of GUARDIAN_SECTIONS) {
       const articles = await fetchFromGuardian(section, category);
 
-      for (const article of articles.slice(0, 2)) {
+      for (const article of articles.slice(0, 1)) {
         if (!article.title) continue;
         const exists = await articleExists(article.title);
         if (exists) continue;
@@ -235,34 +230,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // STEP 2: GDELT — breaking events English only
-    const gdeltQueries = [
-      'FIFA World Cup 2026 semifinal quarterfinal',
-      'breaking news attack explosion',
-      'stock market crash surge',
-      'earthquake disaster flood',
-      'election results political crisis'
-    ];
-
-    for (const query of gdeltQueries) {
-      const articles = await fetchFromGDELT(query);
-
-      for (const article of articles.slice(0, 1)) {
-        if (!article.title) continue;
-        const exists = await articleExists(article.title);
-        if (exists) continue;
-
-        const fullContent = await writeWithGemini(
-          article.title,
-          article.summary,
-          article.category,
-          article.source
-        );
-
-        const saved = await saveArticle({ ...article, content: fullContent });
-        if (saved) results.push({ source: 'gdelt', category: article.category, title: article.title });
-      }
-    }
+    // GDELT removed — blocked by Vercel network
+    // Guardian alone covers world, finance, sports, entertainment, auto
 
     // STEP 3: Return latest
     const latestResponse = await fetch(
