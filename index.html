@@ -860,15 +860,10 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
     <div class="modal-title">You've hit your free limit</div>
     <div class="modal-sub">You've used your 10 free articles this month. Get the PlanetBreaker Pass for ₹29/month and save up to 31 articles.</div>
     <div class="modal-plans">
-      <div class="plan selected">
-        <div class="plan-name">Starter</div>
-        <div class="plan-price">₹99<span style="font-size:12px;font-weight:400;">/mo</span></div>
-        <div class="plan-desc">Unlimited reading + saves</div>
-      </div>
-      <div class="plan">
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">₹99<span style="font-size:12px;font-weight:400;">/mo</span></div>
-        <div class="plan-desc">Save up to 600 articles + real-time alerts + no ads</div>
+      <div style="background:var(--ivory);border-radius:12px;padding:24px;margin-bottom:0;border:2px solid var(--crimson);text-align:left;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--crimson);margin-bottom:6px;">PlanetBreaker Pass</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;color:var(--charcoal);margin-bottom:4px;">₹29<span style="font-size:14px;font-weight:400;color:var(--text-muted);">/month</span></div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Read &amp; save up to <strong>31 articles</strong> every month. Cancel anytime.</div>
       </div>
     </div>
     <button class="modal-cta">Subscribe Now →</button>
@@ -1063,9 +1058,9 @@ function updateNewsGrid(articles) {
   <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
-      <div class="nc-visual" style="background:linear-gradient(135deg,#1A0808,#2D1515);">
-        <span class="nc-big-num dn" style="font-size:28px;text-align:center;padding:10px;">${top.source || 'Breaking'}</span>
-        <span class="nc-big-icon">${catEmojis[topCat] || '📰'}</span>
+      <div class="nc-visual" style="${top.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#1A0808,#2D1515);'}">
+        ${top.image_url ? `<img src="${top.image_url}" style="width:100%;height:100%;object-fit:cover;opacity:0.85;" onerror="this.style.display='none'">` : `<span class="nc-big-num dn" style="font-size:28px;text-align:center;padding:10px;">${top.source || 'Breaking'}</span>`}
+        <span class="nc-big-icon" style="${top.image_url ? 'display:none' : ''}">${catEmojis[topCat] || '📰'}</span>
         <span class="nc-badge nb-breaking">Breaking</span>
       </div>
     </div>
@@ -1090,8 +1085,8 @@ function updateNewsGrid(articles) {
     html += `
     <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
-      <div class="nc-visual" style="background:linear-gradient(135deg,#0D0D1F,#1A1A3A);">
-        <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
+      <div class="nc-visual" style="${article.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#0D0D1F,#1A1A3A);'}">
+        ${article.image_url ? `<img src="${article.image_url}" style="width:100%;height:100%;object-fit:cover;opacity:0.85;" onerror="this.style.display='none'">` : `<span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>`}
         <span class="nc-badge nb-alert">${cat}</span>
       </div>
       <div class="nc-body">
@@ -1128,7 +1123,7 @@ function updateLiveFeed(articles) {
   articles.slice(0, 7).forEach(article => {
     const cat = article.category || 'world';
     feedHtml += `
-    <div class="feed-item">
+    <div class="feed-item" data-article-id="${article.id}" style="cursor:pointer;">
       <span class="feed-cat-dot ${catDots[cat] || 'dot-world'}"></span>
       <div class="feed-content">
         <div class="feed-text">${article.title.substring(0, 80)}...</div>
@@ -1155,7 +1150,7 @@ function updateTrending(articles) {
       sports:'#2ECC71', auto:'#BB8FCE', entertainment:'#F0A500'
     };
     html += `
-    <div class="trend-item">
+    <div class="trend-item" data-article-id="${article.id}" style="cursor:pointer;">
       <span class="trend-num ${hotClass[i]}">${nums[i]}</span>
       <div>
         <div class="trend-text">${article.title.substring(0, 70)}...</div>
@@ -1277,6 +1272,25 @@ function updateHero(articles) {
   // Update hero excerpt
   const excerpt = document.getElementById('heroExcerpt') || document.querySelector('.hero-excerpt');
   if (excerpt) excerpt.textContent = (top.content || top.title).substring(0, 200) + '...';
+
+  // Store article ID on hero section for click navigation
+  const heroSection = document.querySelector('.hero');
+  if (heroSection) {
+    heroSection.setAttribute('data-article-id', top.id);
+    if (top.image_url) {
+      heroSection.style.backgroundImage = `url(${top.image_url})`;
+      heroSection.style.backgroundSize = 'cover';
+      heroSection.style.backgroundPosition = 'center';
+      heroSection.style.backgroundBlendMode = 'overlay';
+      heroSection.style.backgroundColor = 'rgba(26,26,46,0.88)';
+    }
+  }
+
+  // Wire up Read Full Story button
+  const readBtn = document.querySelector('.btn-read');
+  if (readBtn) {
+    readBtn.onclick = () => window.location.href = '/article.html?id=' + top.id;
+  }
 
   // Update hero meta
   const meta = document.querySelector('.hero-meta');
