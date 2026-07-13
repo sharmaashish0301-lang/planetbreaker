@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanetBreaker — Category News</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#FAF7F2;--ivory-dark:#F0EBE1;--charcoal:#1A1A2E;--crimson:#C0392B;--green:#27AE60;--red:#E74C3C;--border:#E8E2D9;--shadow:0 2px 16px rgba(26,26,46,0.07);--shadow-hover:0 8px 36px rgba(26,26,46,0.14);--text-primary:#1A1A2E;--text-secondary:#5A5A7A;--text-muted:#9A9AB0;--card-bg:#FFFFFF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-primary);}
+
+/* Navbar */
+.navbar{background:var(--ivory);border-bottom:2px solid var(--charcoal);position:sticky;top:0;z-index:99;padding:0 40px;}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{font-family:'Playfair Display',serif;font-size:27px;font-weight:900;color:var(--charcoal);text-decoration:none;}
+.nav-links{display:flex;align-items:center;gap:0;list-style:none;}
+.nav-links li a{display:block;padding:0 18px;height:64px;line-height:64px;font-size:12.5px;font-weight:600;color:var(--text-secondary);text-decoration:none;text-transform:uppercase;transition:color 0.2s;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.nav-links li a:hover{color:var(--charcoal);}
+.nav-links li a.active{color:var(--charcoal);border-bottom:3px solid var(--crimson);}
+
+/* Category Header */
+.cat-header{padding:48px 40px 32px;max-width:1440px;margin:0 auto;}
+.cat-title{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--charcoal);margin-bottom:8px;}
+.cat-subtitle{font-size:15px;color:var(--text-secondary);}
+.cat-divider{height:4px;width:80px;border-radius:2px;margin-top:16px;}
+
+/* Grid */
+.cat-grid{max-width:1440px;margin:0 auto;padding:0 40px 60px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+
+/* Cards */
+.nc{background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:transform 0.22s,box-shadow 0.22s;}
+.nc:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);}
+.nc-image{height:200px;overflow:hidden;position:relative;background:var(--ivory-dark);}
+.nc-image img{width:100%;height:100%;object-fit:cover;}
+.nc-image-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.3;}
+.nc-badge{position:absolute;top:12px;left:12px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;color:white;background:var(--crimson);}
+.nc-body{padding:20px;}
+.nc-cat{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;color:var(--crimson);}
+.nc-headline{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--charcoal);line-height:1.35;margin-bottom:10px;}
+.nc-excerpt{font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:14px;}
+.nc-footer{display:flex;align-items:center;justify-content:space-between;}
+.nc-time{font-size:11px;color:var(--text-muted);}
+.nc-source{font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;background:var(--ivory-dark);color:var(--text-secondary);}
+
+/* Loading */
+.loading{text-align:center;padding:80px 20px;}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--crimson);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Mobile */
+@media(max-width:768px){
+  .navbar{padding:0 16px;}
+  .nav-links{display:none;}
+  .cat-header{padding:28px 16px 20px;}
+  .cat-title{font-size:28px;}
+  .cat-grid{padding:0 16px 40px;grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="logo">PlanetBreaker</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/category.html?cat=world">🌍 World</a></li>
+      <li><a href="/category.html?cat=finance">📈 Finance</a></li>
+      <li><a href="/category.html?cat=sports">⚽ Sports</a></li>
+      <li><a href="/category.html?cat=auto">🚗 Auto</a></li>
+      <li><a href="/category.html?cat=entertainment">🎬 Entertainment</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="cat-header">
+  <div class="cat-title" id="catTitle">Loading...</div>
+  <div class="cat-subtitle" id="catSubtitle"></div>
+  <div class="cat-divider" id="catDivider"></div>
+</div>
+
+<div class="cat-grid" id="catGrid">
+  <div class="loading" style="grid-column:span 3;">
+    <div class="loading-spinner"></div>
+    <p style="color:var(--text-muted);font-size:14px;">Loading stories...</p>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://zjcwvnvnhyjjaoltybvj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
+
+const CAT_CONFIG = {
+  world: { title: '🌍 World News', subtitle: 'Breaking stories from across the globe', color: '#2471A3', icon: '🌍', placeholder: '🌐' },
+  finance: { title: '📈 Finance & Markets', subtitle: 'Market movements, business news, and economic updates', color: '#C0392B', icon: '📈', placeholder: '📊' },
+  sports: { title: '⚽ Sports', subtitle: 'Match results, transfers, and sporting highlights', color: '#27AE60', icon: '⚽', placeholder: '🏆' },
+  auto: { title: '🚗 Auto & Technology', subtitle: 'New launches, EV news, and tech updates', color: '#8E44AD', icon: '🚗', placeholder: '🏎️' },
+  entertainment: { title: '🎬 Entertainment', subtitle: 'Movies, music, celebrity news and more', color: '#E67E22', icon: '🎬', placeholder: '🎭' }
+};
+
+function timeAgo(dateStr) {
+  if (!dateStr) return 'Just now';
+  const diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`;
+  return `${Math.floor(diff/86400)} days ago`;
+}
+
+async function loadCategory() {
+  const params = new URLSearchParams(window.location.search);
+  const cat = params.get('cat') || 'world';
+  const cfg = CAT_CONFIG[cat] || CAT_CONFIG.world;
+
+  // Update page
+  document.title = `${cfg.title} — PlanetBreaker`;
+  document.getElementById('catTitle').textContent = cfg.title;
+  document.getElementById('catSubtitle').textContent = cfg.subtitle;
+  document.getElementById('catDivider').style.background = cfg.color;
+
+  // Mark active nav link
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    if (a.href.includes(`cat=${cat}`)) a.classList.add('active');
+  });
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?category=eq.${cat}&select=id,title,content,category,source,source_url,image_url,published_at,read_count&order=published_at.desc&limit=30`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    const articles = await res.json();
+    const grid = document.getElementById('catGrid');
+
+    if (!articles.length) {
+      grid.innerHTML = `<div style="grid-column:span 3;text-align:center;padding:80px 20px;color:var(--text-muted);">
+        <div style="font-size:48px;margin-bottom:16px;">${cfg.placeholder}</div>
+        <div style="font-size:16px;font-weight:600;">No stories yet in ${cfg.title}</div>
+        <div style="font-size:13px;margin-top:8px;">Check back soon — new stories update every 5 minutes.</div>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = articles.map(a => `
+      <div class="nc" onclick="window.location.href='/article.html?id=${a.id}'">
+        <div class="nc-image">
+          ${a.image_url 
+            ? `<img src="${a.image_url}" alt="${a.title}" onerror="this.parentElement.innerHTML='<div class=nc-image-placeholder>${cfg.placeholder}</div>'">`
+            : `<div class="nc-image-placeholder">${cfg.placeholder}</div>`}
+          <span class="nc-badge" style="background:${cfg.color};">${cat.toUpperCase()}</span>
+        </div>
+        <div class="nc-body">
+          <div class="nc-cat" style="color:${cfg.color};">${cfg.icon} ${cat.toUpperCase()}</div>
+          <div class="nc-headline">${a.title}</div>
+          <div class="nc-excerpt">${(a.content || '').substring(0, 120)}...</div>
+          <div class="nc-footer">
+            <span class="nc-time">🕐 ${timeAgo(a.published_at)}</span>
+            <span class="nc-source">${a.source || 'News'}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+  } catch(e) {
+    document.getElementById('catGrid').innerHTML = `<div style="grid-column:span 3;text-align:center;padding:60px;color:var(--text-muted);">Failed to load stories. Please try again.</div>`;
+  }
+}
+
+loadCategory();
+</script>
+</body>
+</html>
