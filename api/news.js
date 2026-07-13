@@ -219,7 +219,7 @@ async function saveArticle(article) {
     region: 'global',
     source: article.source,
     source_url: article.url,
-    image_url: '',
+    image_url: article.image_url || '',
     published_at: article.publishedAt || new Date().toISOString(),
     read_count: 0,
     is_breaking: false
