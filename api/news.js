@@ -150,7 +150,7 @@ Write the full article now:`;
 // ══════════════════════════════════════════════
 async function fetchFromGuardian(section, category) {
   try {
-    const url = `https://content.guardianapis.com/search?section=${section}&show-fields=standfirst,byline&page-size=5&order-by=newest&api-key=${GUARDIAN_KEY}`;
+    const url = `https://content.guardianapis.com/search?section=${section}&show-fields=standfirst,byline,thumbnail&page-size=5&order-by=newest&api-key=${GUARDIAN_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     const results = data.response?.results || [];
@@ -161,7 +161,8 @@ async function fetchFromGuardian(section, category) {
       url: r.webUrl,
       source: 'The Guardian',
       publishedAt: r.webPublicationDate,
-      category: category
+      category: category,
+      image_url: r.fields?.thumbnail || ''
     }));
   } catch(e) {
     console.log('Guardian error:', e.message);
