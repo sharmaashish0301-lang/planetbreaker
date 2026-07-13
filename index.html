@@ -1104,8 +1104,8 @@ function updateNewsGrid(articles) {
   <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
-      <div class="nc-visual" style="${top.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#1A0808,#2D1515);'}">
-        ${top.image_url ? `<img src="${top.image_url}" style="width:100%;height:100%;object-fit:cover;opacity:0.85;" onerror="this.style.display='none'">` : `<span class="nc-big-num dn" style="font-size:28px;text-align:center;padding:10px;">${top.source || 'Breaking'}</span>`}
+      <div class="nc-visual" style="height:240px;${top.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#1A0808,#2D1515);'}">
+        ${top.image_url ? `<img src="${top.image_url}" style="width:100%;height:240px;object-fit:cover;opacity:0.85;display:block;" onerror="this.style.display='none'">` : `<span class="nc-big-num dn" style="font-size:28px;text-align:center;padding:10px;">${top.source || 'Breaking'}</span>`}
         <span class="nc-big-icon" style="${top.image_url ? 'display:none' : ''}">${catEmojis[topCat] || '📰'}</span>
         <span class="nc-badge nb-breaking">Breaking</span>
       </div>
@@ -1131,8 +1131,8 @@ function updateNewsGrid(articles) {
     html += `
     <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
-      <div class="nc-visual" style="${article.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#0D0D1F,#1A1A3A);'}">
-        ${article.image_url ? `<img src="${article.image_url}" style="width:100%;height:100%;object-fit:cover;opacity:0.85;" onerror="this.style.display='none'">` : `<span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>`}
+      <div class="nc-visual" style="height:180px;${article.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#0D0D1F,#1A1A3A);'}">
+        ${article.image_url ? `<img src="${article.image_url}" style="width:100%;height:180px;object-fit:cover;opacity:0.85;display:block;" onerror="this.style.display='none'">` : `<span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>`}
         <span class="nc-badge nb-alert">${cat}</span>
       </div>
       <div class="nc-body">
