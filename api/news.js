@@ -69,7 +69,7 @@ Write the full article now:`;
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`,
       {
         method: 'POST',
         headers: { 
@@ -91,7 +91,7 @@ Write the full article now:`;
       if (response.status === 503) {
         console.log('Trying fallback model gemini-2.5-flash-lite...');
         const fallbackResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`,
           {
             method: 'POST',
             headers: { 
