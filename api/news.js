@@ -261,6 +261,7 @@ export default async function handler(req, res) {
       for (const article of articles.slice(0, 1)) {
         if (!article.title) continue;
         console.log('Processing article:', article.title.substring(0, 60));
+        console.log('Image URL:', article.image_url || 'NONE');
         const exists = await articleExists(article.title);
         console.log('Article exists in DB:', exists);
         if (exists) continue;
