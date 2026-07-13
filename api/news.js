@@ -42,24 +42,30 @@ async function writeWithGemini(title, summary, category, source) {
 
   const cleanSummary = stripHtml(summary);
   
-  const prompt = `You are a professional news journalist. Write a complete 400-500 word original news article.
+  const prompt = `You are a senior news journalist at a global news agency. Your job is to write a full newspaper-quality article of at least 400 words.
 
 HEADLINE: ${title}
-SUMMARY: ${cleanSummary}
+KEY FACTS: ${cleanSummary}
 SOURCE: ${source}
-CATEGORY: ${category}
+TOPIC AREA: ${category}
+
+YOUR ARTICLE MUST INCLUDE ALL OF THESE SECTIONS:
+1. OPENING (2 sentences): State the main news fact directly and its immediate significance
+2. BACKGROUND (3-4 sentences): What led to this? Historical context the reader needs
+3. DETAILS (3-4 sentences): Expand on the key facts, who is involved, what happened exactly
+4. GLOBAL IMPACT (3-4 sentences): Why does this matter globally? Economic, political, social effects
+5. REACTIONS (2-3 sentences): How are people/governments/markets responding? Use "according to ${source}"
+6. WHAT NEXT (2-3 sentences): What should readers watch for in coming days/weeks?
 
 RULES:
-- Write entirely in your own words, do not copy the summary
-- Start with a strong news opening sentence
-- Use "according to ${source}" when citing facts  
-- Add global context and why this matters
-- End with what to watch next
-- Third person throughout
-- No "In conclusion" or "In summary"
-- If breaking news, end with: DEVELOPING STORY — This article will be updated as more details emerge.
+- Minimum 400 words — this is mandatory
+- Write in your own words entirely, do not copy the headline or key facts verbatim
+- Third person, past/present tense mix
+- No "In conclusion", "In summary", "To summarize"
+- Professional newspaper tone
+- If this just happened, add at the very end: "DEVELOPING STORY — This article will be updated as more details emerge."
 
-Article:`;
+Write the full article now:`;
 
   try {
     const response = await fetch(
@@ -72,7 +78,7 @@ Article:`;
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 800 }
+          generationConfig: { temperature: 0.7, maxOutputTokens: 1200 }
         })
       }
     );
@@ -80,6 +86,33 @@ Article:`;
     if (!response.ok) {
       const errText = await response.text();
       console.log('Gemini HTTP error:', response.status, errText);
+      
+      // Try fallback model on 503
+      if (response.status === 503) {
+        console.log('Trying fallback model gemini-2.5-flash-lite...');
+        const fallbackResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent`,
+          {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-goog-api-key': GEMINI_KEY
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 1200 }
+            })
+          }
+        );
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          const fallbackText = fallbackData.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (fallbackText) {
+            console.log('Fallback Gemini success, length:', fallbackText.length);
+            return fallbackText;
+          }
+        }
+      }
       return cleanSummary;
     }
 
@@ -90,10 +123,16 @@ Article:`;
       return cleanSummary;
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    console.log('Gemini full response:', JSON.stringify(data).substring(0, 500));
+    
+    const candidate = data.candidates?.[0];
+    console.log('Finish reason:', candidate?.finishReason);
+    console.log('Safety ratings:', JSON.stringify(candidate?.safetyRatings));
+    
+    const text = candidate?.content?.parts?.[0]?.text;
     
     if (!text) {
-      console.log('Gemini no text in response:', JSON.stringify(data).substring(0, 300));
+      console.log('Gemini no text in response');
       return cleanSummary;
     }
 
