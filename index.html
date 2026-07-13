@@ -510,12 +510,12 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
   <div class="nav-inner">
     <a href="#" class="logo">PlanetBreaker</a>
     <ul class="nav-links">
-      <li><a href="#" class="active">Home</a></li>
-      <li><a href="#" class="world">🌍 World</a></li>
-      <li><a href="#">📈 Finance</a></li>
-      <li><a href="#" class="sports-link">⚽ Sports</a></li>
-      <li><a href="#">🚗 Auto</a></li>
-      <li><a href="#">🎬 Entertainment</a></li>
+      <li><a href="/" class="active">Home</a></li>
+      <li><a href="/category.html?cat=world" class="world">🌍 World</a></li>
+      <li><a href="/category.html?cat=finance">📈 Finance</a></li>
+      <li><a href="/category.html?cat=sports" class="sports-link">⚽ Sports</a></li>
+      <li><a href="/category.html?cat=auto">🚗 Auto</a></li>
+      <li><a href="/category.html?cat=entertainment">🎬 Entertainment</a></li>
     </ul>
     <div class="nav-right">
       <div class="region-pill" id="regionPill">
@@ -934,10 +934,56 @@ function showToast(msg){
   setTimeout(()=>t.style.opacity='0', 2000);
 }
 
-// Category pills
+// Category pills - filter news grid
 function setPill(el){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
+  
+  // Get selected category from button text
+  const text = el.textContent.trim().toLowerCase();
+  let cat = 'all';
+  if (text.includes('world')) cat = 'world';
+  else if (text.includes('finance')) cat = 'finance';
+  else if (text.includes('sports')) cat = 'sports';
+  else if (text.includes('auto')) cat = 'auto';
+  else if (text.includes('entertainment')) cat = 'entertainment';
+  
+  // Filter cards in news grid
+  const cards = document.querySelectorAll('#newsGrid .nc, #newsGrid .nc.wide');
+  cards.forEach(card => {
+    if (cat === 'all' || cat === 'viral') {
+      card.style.display = '';
+    } else {
+      // Check category from nc-cat element
+      const catEl = card.querySelector('.nc-cat');
+      const cardCat = catEl ? catEl.className.replace('nc-cat', '').trim() : '';
+      card.style.display = cardCat === cat ? '' : 'none';
+    }
+  });
+  
+  // If filtering, fetch category-specific articles from API
+  if (cat !== 'all' && cat !== 'viral') {
+    fetch(`${API_BASE}/api/articles?category=${cat}&limit=20`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.articles.length) {
+          const articles = deduplicateArticles(data.articles);
+          updateNewsGrid(articles);
+        }
+      })
+      .catch(() => {});
+  } else {
+    // Reload all articles
+    fetch(`${API_BASE}/api/articles?limit=50`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const articles = deduplicateArticles(data.articles);
+          updateNewsGrid(articles);
+        }
+      })
+      .catch(() => {});
+  }
 }
 
 // Modal
