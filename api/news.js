@@ -211,21 +211,28 @@ export default async function handler(req, res) {
 
     // STEP 1: Guardian API
     for (const { section, category } of GUARDIAN_SECTIONS) {
+      console.log('Fetching Guardian section:', section);
       const articles = await fetchFromGuardian(section, category);
+      console.log('Guardian', section, 'returned:', articles.length, 'articles');
 
       for (const article of articles.slice(0, 1)) {
         if (!article.title) continue;
+        console.log('Processing article:', article.title.substring(0, 60));
         const exists = await articleExists(article.title);
+        console.log('Article exists in DB:', exists);
         if (exists) continue;
 
+        console.log('Calling Gemini for:', article.title.substring(0, 40));
         const fullContent = await writeWithGemini(
           article.title,
           article.summary,
           category,
           'The Guardian'
         );
+        console.log('Gemini returned content length:', fullContent?.length || 0);
 
         const saved = await saveArticle({ ...article, content: fullContent });
+        console.log('Saved to DB:', !!saved);
         if (saved) results.push({ source: 'guardian', category, title: article.title });
       }
     }
