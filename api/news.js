@@ -7,11 +7,20 @@ const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
 //  GUARDIAN SECTIONS → CATEGORIES
 // ══════════════════════════════════════════════
 const GUARDIAN_SECTIONS = [
-  { section: 'world',    category: 'world'         },
-  { section: 'business', category: 'finance'       },
-  { section: 'sport',    category: 'sports'        },
-  { section: 'film',     category: 'entertainment' },
-  { section: 'technology', category: 'auto'        },
+  { section: 'world',       category: 'world'         },
+  { section: 'us-news',     category: 'world'         },
+  { section: 'politics',    category: 'world'         },
+  { section: 'business',    category: 'finance'       },
+  { section: 'money',       category: 'finance'       },
+  { section: 'sport',       category: 'sports'        },
+  { section: 'football',    category: 'sports'        },
+  { section: 'cricket',     category: 'sports'        },
+  { section: 'film',        category: 'entertainment' },
+  { section: 'music',       category: 'entertainment' },
+  { section: 'technology',  category: 'world'         },
+  { section: 'environment', category: 'world'         },
+  { section: 'science',     category: 'world'         },
+  { section: 'media',       category: 'entertainment' },
 ];
 
 // ══════════════════════════════════════════════
@@ -155,7 +164,7 @@ Write the full article now:`;
 // ══════════════════════════════════════════════
 async function fetchFromGuardian(section, category) {
   try {
-    const url = `https://content.guardianapis.com/search?section=${section}&show-fields=standfirst,byline,thumbnail&page-size=5&order-by=newest&api-key=${GUARDIAN_KEY}`;
+    const url = `https://content.guardianapis.com/search?section=${section}&show-fields=standfirst,byline,thumbnail&page-size=10&order-by=newest&api-key=${GUARDIAN_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     const results = data.response?.results || [];
@@ -169,7 +178,7 @@ async function fetchFromGuardian(section, category) {
       const smartCategory = detectCategory(title, summary);
       // Only use Guardian section category if smart detector says 'world'
       // and Guardian section is specific (sports/finance/entertainment)
-      const specificSections = ['sport', 'football', 'business', 'money', 'film', 'music', 'culture', 'media'];
+      const specificSections = ['sport', 'football', 'cricket', 'business', 'money', 'film', 'music', 'media'];
       const finalCategory = specificSections.includes(section) ? category : smartCategory;
       return {
         title,
@@ -275,7 +284,7 @@ export default async function handler(req, res) {
       const articles = await fetchFromGuardian(section, category);
       console.log('Guardian', section, 'returned:', articles.length, 'articles');
 
-      for (const article of articles.slice(0, 1)) {
+      for (const article of articles.slice(0, 3)) {
         if (!article.title) continue;
         console.log('Processing article:', article.title.substring(0, 60));
         console.log('Image URL:', article.image_url || 'NONE');
