@@ -1104,7 +1104,8 @@ function updateNewsGrid(articles) {
   <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
-      <div class="nc-visual" id="wideCardVisual" style="height:240px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1A0808,#2D1515);">
+      <div class="nc-visual" style="height:240px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1A0808,#2D1515);" data-img="${top.image_url || ''}">
+        <span class="nc-placeholder-icon" style="font-size:48px;opacity:0.3;">📰</span>
         <span class="nc-badge nb-breaking">Breaking</span>
       </div>
     </div>
@@ -1347,18 +1348,7 @@ function updateHero(articles) {
     }
   }
   
-  // Inject wide card image
-  const wideVisual = document.getElementById('wideCardVisual');
-  if (wideVisual && top.image_url) {
-    const existing = wideVisual.querySelector('img');
-    if (!existing) {
-      const img = document.createElement('img');
-      img.src = top.image_url;
-      img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85;';
-      img.onerror = () => img.remove();
-      wideVisual.insertBefore(img, wideVisual.firstChild);
-    }
-  }
+  // Wide card image handled by data-img injection in updateNewsGrid
 
   // Wire up Read Full Story button
   const readBtn = document.querySelector('.btn-read');
