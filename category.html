@@ -56,6 +56,49 @@ body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-pri
   .cat-title{font-size:28px;}
   .cat-grid{padding:0 16px 40px;grid-template-columns:1fr;}
 }
+
+/* Upcoming Matches */
+.upcoming-section { max-width: 1440px; margin: 0 auto; padding: 0 40px 40px; }
+.upcoming-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--charcoal); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--charcoal); display: flex; align-items: center; gap: 10px; }
+.matches-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
+.match-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); }
+.match-card.live-now { border-color: #E74C3C; border-width: 2px; }
+.match-sport { font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.match-live-badge { background: #E74C3C; color: white; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 3px; display: flex; align-items: center; gap: 4px; }
+.match-live-dot { width: 5px; height: 5px; background: white; border-radius: 50%; animation: blink 1s ease-in-out infinite; }
+.match-teams { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.match-team { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+.match-logo { width: 32px; height: 32px; object-fit: contain; }
+.match-logo-placeholder { width: 32px; height: 32px; background: var(--ivory-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.match-team-name { font-size: 11px; font-weight: 700; color: var(--charcoal); text-align: center; line-height: 1.2; }
+.match-team-name.winner { color: var(--green); }
+.match-score { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--charcoal); text-align: center; }
+.match-score.live { color: #E74C3C; }
+.match-time { font-size: 11px; color: var(--text-muted); text-align: center; }
+.match-round { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
+@media(max-width:1024px) { .matches-grid { grid-template-columns: repeat(3,1fr); } }
+@media(max-width:768px) { .upcoming-section { padding: 0 16px 32px; } .matches-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:480px) { .matches-grid { grid-template-columns: 1fr; } }
+
+
+/* Upcoming Matches */
+.upcoming-section{max-width:1440px;margin:0 auto;padding:0 40px 40px;}
+.upcoming-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--charcoal);margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid var(--charcoal);}
+.matches-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:40px;}
+.match-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow);}
+.match-card.live-now{border-color:#E74C3C;border-width:2px;}
+.match-sport{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.match-live-badge{background:#E74C3C;color:white;font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;}
+.match-teams{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.match-team{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.match-logo{width:32px;height:32px;object-fit:contain;}
+.match-team-name{font-size:11px;font-weight:700;color:var(--charcoal);text-align:center;}
+.match-team-name.winner{color:var(--green);}
+.match-vs{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--charcoal);text-align:center;}
+.match-vs.live-score{color:#E74C3C;}
+.match-time{font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;}
+.match-round{font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px;border-top:1px solid var(--border);padding-top:6px;}
+@media(max-width:768px){.upcoming-section{padding:0 16px 32px;}.matches-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
@@ -74,6 +117,8 @@ body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-pri
   </div>
 </nav>
 
+
+<div id="upcomingSection" style="display:none;"><div class="upcoming-section"><div class="upcoming-title">🏆 Live &amp; Upcoming Matches</div><div class="matches-grid" id="matchesGrid"><div style="grid-column:span 4;text-align:center;padding:30px;color:var(--text-muted);">Loading matches...</div></div></div></div>
 <div class="cat-header">
   <div class="cat-title" id="catTitle">Loading...</div>
   <div class="cat-subtitle" id="catSubtitle"></div>
@@ -167,6 +212,40 @@ async function loadCategory() {
 }
 
 loadCategory();
+
+async function loadMatches() {
+  const urlCat = new URLSearchParams(window.location.search).get('cat');
+  if (urlCat !== 'sports') return;
+  try {
+    const res = await fetch('/api/livescores');
+    const data = await res.json();
+    if (!data.success) return;
+    const relevant = data.matches.filter(m => m.status.type === 'STATUS_IN_PROGRESS' || !m.status.completed);
+    if (!relevant.length) return;
+    document.getElementById('upcomingSection').style.display = 'block';
+    const grid = document.getElementById('matchesGrid');
+    const formatDate = d => new Date(d).toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric'}) + ' · ' + new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    grid.innerHTML = relevant.map(m => {
+      const isLive = m.status.type === 'STATUS_IN_PROGRESS';
+      const score = (m.home.score != null && m.away.score != null) ? m.home.score + ' - ' + m.away.score : '';
+      const timeDisplay = isLive ? (m.status.clock ? m.status.clock+"'" : 'LIVE') : m.status.completed ? 'FT' : formatDate(m.date);
+      const homeLogo = m.home.logo ? `<img class="match-logo" src="${m.home.logo}" onerror="this.style.display='none'">` : '';
+      const awayLogo = m.away.logo ? `<img class="match-logo" src="${m.away.logo}" onerror="this.style.display='none'">` : '';
+      return `<div class="match-card ${isLive?'live-now':''}">
+        <div class="match-sport"><span>${m.sport}</span>${isLive?'<div class="match-live-badge">🔴 LIVE</div>':''}</div>
+        <div class="match-teams">
+          <div class="match-team">${homeLogo}<div class="match-team-name ${m.home.winner?'winner':''}">${m.home.shortName||m.home.name||''}</div></div>
+          <div><div class="match-vs ${isLive?'live-score':''}">${score || 'vs'}</div><div class="match-time">${timeDisplay}</div></div>
+          <div class="match-team">${awayLogo}<div class="match-team-name ${m.away.winner?'winner':''}">${m.away.shortName||m.away.name||''}</div></div>
+        </div>
+        ${m.round ? `<div class="match-round">${m.round}</div>` : ''}
+      </div>`;
+    }).join('');
+    if (relevant.some(m => m.status.type === 'STATUS_IN_PROGRESS')) setTimeout(loadMatches, 5000);
+  } catch(e) { console.log('Matches error:',e); }
+}
+loadMatches();
+
 </script>
 </body>
 </html>
