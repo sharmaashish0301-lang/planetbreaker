@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const category = req.query.category || null;
     const limit = req.query.limit || 50;
 
-    let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,content,category,region,source,source_url,published_at,read_count,is_breaking&order=published_at.desc&limit=${limit}`;
+    let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,content,category,region,source,source_url,image_url,published_at,read_count,is_breaking&order=published_at.desc&limit=${limit}`;
     
     if (category) {
       url += `&category=eq.${category}`;
