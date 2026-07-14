@@ -536,7 +536,7 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <div class="breaking-pill"><span class="blink-dot"></span>Breaking Now</div>
         <span class="hero-cat-badge badge-world">🌍 World</span>
       </div>
-      <h1 class="hero-headline" id="heroHeadline" style="min-height:120px;">Loading latest breaking story...</h1>
+      <h1 class="hero-headline" id="heroHeadline" style="min-height:120px;"> </h1>
       <div class="hero-meta">
         <span>🌍 World News</span>
         <span class="dot">●</span>
@@ -546,7 +546,7 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <span class="dot">●</span>
         <span>Reuters, AP confirmed</span>
       </div>
-      <p class="hero-excerpt" id="heroExcerpt">Fetching latest news...</p>
+      <p class="hero-excerpt" id="heroExcerpt"> </p>
       <div class="hero-actions">
         <button class="btn-read">Read Full Story →</button>
         <button class="btn-bookmark-hero" onclick="toggleBookmark(this)" title="Save article">🔖</button>
@@ -669,7 +669,7 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <div class="sh-title">Latest Stories</div>
         <span class="sh-count">247</span>
       </div>
-      <a href="#" class="sh-link">Full Feed →</a>
+      <a href="/feed.html" class="sh-link">Full Feed →</a>
     </div>
     <div class="cat-pills">
       <button class="cat-pill active" onclick="setPill(this)">🔥 All</button>
@@ -1066,6 +1066,7 @@ async function fetchNews() {
     updateTrending(articles);
     updateCategoryCards(articles);
     updateTickerWithNews(articles);
+    saveToCache(articles); // Save for instant display next visit
 
     // Step 2: Trigger background fetch for new articles (silent)
     fetch(`${API_BASE}/api/news`).catch(() => {});
@@ -1261,7 +1262,7 @@ function updateTickerWithNews(articles) {
   let html = '';
   articles.slice(0, 10).forEach(article => {
     const cat = article.category || 'world';
-    html += `<span class="t-item">
+    html += `<span class="t-item" data-article-id="${article.id}" style="cursor:pointer;" title="Click to read">
       <span class="t-cat ${catClasses[cat]||'world'}">${cat.toUpperCase()}</span>
       <span class="breaking-text">${article.title.substring(0, 60)}...</span>
     </span>
@@ -1371,12 +1372,29 @@ function updateHero(articles) {
   }
 }
 
+// ── LOCALSTORAGE CACHE ──
+function saveToCache(articles) {
+  try { localStorage.setItem('pb_articles', JSON.stringify(articles.slice(0, 50))); localStorage.setItem('pb_time', Date.now()); } catch(e) {}
+}
+function loadFromCache() {
+  try {
+    const c = localStorage.getItem('pb_articles');
+    const t = localStorage.getItem('pb_time');
+    if (!c || !t || Date.now() - parseInt(t) > 30*60*1000) return null;
+    return JSON.parse(c);
+  } catch(e) { return null; }
+}
+
 // ── INIT & AUTO REFRESH ──
 async function initLiveData() {
-  console.log('PlanetBreaker: Loading live data...');
+  const cached = loadFromCache();
+  if (cached && cached.length) {
+    const d = deduplicateArticles(cached);
+    updateHero(d); updateNewsGrid(d); updateLiveFeed(d);
+    updateTrending(d); updateCategoryCards(d); updateTickerWithNews(d);
+  }
   await fetchMarkets();
   await fetchNews();
-  console.log('PlanetBreaker: Live data loaded!');
 }
 
 
