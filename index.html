@@ -448,6 +448,38 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
   .hero-cat-badge { font-size: 9px; }
 }
 
+
+/* ── LIVE SCORES WIDGET ── */
+.scores-section { max-width: 1440px; margin: 0 auto; padding: 0 40px 32px; }
+.scores-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.scores-title { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; color: var(--charcoal); }
+.live-indicator { display: flex; align-items: center; gap: 5px; background: #E74C3C; color: white; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+.live-dot-red { width: 6px; height: 6px; background: white; border-radius: 50%; animation: blink 1s ease-in-out infinite; }
+.scores-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.scores-strip::-webkit-scrollbar { display: none; }
+.score-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 240px; flex-shrink: 0; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.score-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.score-card.live-match { border-color: #E74C3C; border-width: 2px; }
+.score-card.finished { opacity: 0.85; }
+.score-round { font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.score-teams { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.score-team { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.score-team-logo { width: 36px; height: 36px; object-fit: contain; }
+.score-team-logo-placeholder { width: 36px; height: 36px; background: var(--ivory-dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.score-team-name { font-size: 11px; font-weight: 700; color: var(--charcoal); text-align: center; }
+.score-team-name.winner { color: var(--green); }
+.score-middle { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.score-result { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--charcoal); }
+.score-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.score-status.live { color: #E74C3C; animation: pulse 1.5s ease-in-out infinite; }
+.score-status.ft { color: var(--text-muted); }
+.score-status.upcoming { color: var(--blue); }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+.score-venue { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 8px; }
+.scores-loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
+.scores-empty { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; background: var(--ivory-dark); border-radius: 10px; }
+@media(max-width:768px) { .scores-section { padding: 0 16px 24px; } }
+
 </style>
 </head>
 <body>
@@ -641,6 +673,21 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <div class="ms-item"><span class="ms-name">CRUDE</span><span class="ms-price">$74.23</span><span class="ms-change up">▲+9.1%</span></div>
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- ── LIVE SCORES WIDGET ── -->
+<div class="scores-section" id="scoresSection" style="display:none;">
+  <div class="scores-header">
+    <div class="scores-title">
+      ⚽ FIFA World Cup 2026
+      <div class="live-indicator"><div class="live-dot-red"></div> Live Scores</div>
+    </div>
+    <a href="/category.html?cat=sports" style="font-size:11px;font-weight:700;color:var(--crimson);text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">All Sports →</a>
+  </div>
+  <div class="scores-strip" id="scoresStrip">
+    <div class="scores-loading">Loading live scores...</div>
   </div>
 </div>
 
@@ -1436,6 +1483,80 @@ setInterval(initLiveData, 5 * 60 * 1000);
 
 // Refresh news ticker every 2 minutes
 setInterval(fetchNews, 2 * 60 * 1000);
+
+// ── LIVE SCORES ──
+async function fetchLiveScores() {
+  try {
+    const res = await fetch('/api/livescores');
+    const data = await res.json();
+    if (!data.success || !data.matches.length) return;
+    
+    const section = document.getElementById('scoresSection');
+    const strip = document.getElementById('scoresStrip');
+    if (!section || !strip) return;
+    
+    section.style.display = 'block';
+    
+    const formatTime = (dateStr) => {
+      const d = new Date(dateStr);
+      return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    };
+    
+    strip.innerHTML = data.matches.map(match => {
+      const isLive = match.status.type === 'STATUS_IN_PROGRESS';
+      const isFinished = match.status.completed;
+      const isUpcoming = match.status.type === 'STATUS_SCHEDULED';
+      
+      const homeScore = match.home.score || '';
+      const awayScore = match.away.score || '';
+      const scoreDisplay = (homeScore !== '' && awayScore !== '') 
+        ? `${homeScore} - ${awayScore}` 
+        : isUpcoming ? formatTime(match.date) : '- -';
+      
+      const statusText = isLive ? (match.status.clock || 'LIVE') 
+        : isFinished ? 'FT' 
+        : isUpcoming ? 'Upcoming' : match.status.detail || '';
+      
+      const statusClass = isLive ? 'live' : isFinished ? 'ft' : 'upcoming';
+      const cardClass = isLive ? 'live-match' : isFinished ? 'finished' : '';
+      
+      const homeLogo = match.home.logo 
+        ? `<img class="score-team-logo" src="${match.home.logo}" onerror="this.style.display='none'">`
+        : `<div class="score-team-logo-placeholder">🏴</div>`;
+      const awayLogo = match.away.logo
+        ? `<img class="score-team-logo" src="${match.away.logo}" onerror="this.style.display='none'">`
+        : `<div class="score-team-logo-placeholder">🏴</div>`;
+      
+      return `
+      <div class="score-card ${cardClass}">
+        <div class="score-round">${match.round || 'FIFA World Cup 2026'}</div>
+        <div class="score-teams">
+          <div class="score-team">
+            ${homeLogo}
+            <div class="score-team-name ${match.home.winner ? 'winner' : ''}">${match.home.shortName || match.home.name}</div>
+          </div>
+          <div class="score-middle">
+            <div class="score-result">${scoreDisplay}</div>
+            <div class="score-status ${statusClass}">${statusText}</div>
+          </div>
+          <div class="score-team">
+            ${awayLogo}
+            <div class="score-team-name ${match.away.winner ? 'winner' : ''}">${match.away.shortName || match.away.name}</div>
+          </div>
+        </div>
+        ${match.venue ? `<div class="score-venue">📍 ${match.venue}</div>` : ''}
+      </div>`;
+    }).join('');
+    
+  } catch(e) {
+    console.log('Scores error:', e);
+  }
+}
+
+// Fetch scores on load and every 30 seconds
+fetchLiveScores();
+setInterval(fetchLiveScores, 30 * 1000);
+
 </script>
 
 </body>
