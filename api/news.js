@@ -77,7 +77,7 @@ RULES:
 - Third person, past/present tense mix
 - No "In conclusion", "In summary", "To summarize"
 - Professional newspaper tone
-- If this just happened, add at the very end: "DEVELOPING STORY — This article will be updated as more details emerge."
+- NEVER add "DEVELOPING STORY" to articles about completed events (match results, final scores, product launches, past events). ONLY add it if this is a live ongoing crisis or event actively happening right now.
 
 Write the full article now:`;
 
