@@ -681,11 +681,12 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
 <div class="scores-section" id="scoresSection" style="display:none;">
   <div class="scores-header">
     <div class="scores-title">
-      ⚽ FIFA World Cup 2026
-      <div class="live-indicator"><div class="live-dot-red"></div> Live Scores</div>
+      🏆 Live Scores
+      <div class="live-indicator"><div class="live-dot-red"></div> Live</div>
     </div>
     <a href="/category.html?cat=sports" style="font-size:11px;font-weight:700;color:var(--crimson);text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">All Sports →</a>
   </div>
+  <div id="sportsTabs" style="display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
   <div class="scores-strip" id="scoresStrip">
     <div class="scores-loading">Loading live scores...</div>
   </div>
@@ -1502,7 +1503,40 @@ async function fetchLiveScores() {
       return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     };
     
-    strip.innerHTML = data.matches.map(match => {
+    // Build sport filter tabs
+    const tabs = document.getElementById('sportsTabs');
+    if (tabs) {
+      const sports = [...new Set(data.matches.map(m => m.sport))];
+      tabs.innerHTML = `<button onclick="filterScores('all', this)" style="padding:5px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--charcoal);color:white;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">All</button>` +
+        sports.map(s => `<button onclick="filterScores('${s}', this)" style="padding:5px 12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">${s}</button>`).join('');
+    }
+    
+    window._allMatches = data.matches;
+    renderScores(data.matches);
+  } catch(e) {
+    console.log('Scores error:', e);
+  }
+}
+
+function filterScores(sport, btn) {
+  document.querySelectorAll('#sportsTabs button').forEach(b => {
+    b.style.background = 'transparent';
+    b.style.color = 'var(--text-secondary)';
+  });
+  btn.style.background = 'var(--charcoal)';
+  btn.style.color = 'white';
+  const matches = sport === 'all' ? window._allMatches : window._allMatches.filter(m => m.sport === sport);
+  renderScores(matches);
+}
+
+function renderScores(matches) {
+  const strip = document.getElementById('scoresStrip');
+  if (!strip) return;
+  if (!matches.length) {
+    strip.innerHTML = '<div class="scores-empty">No matches scheduled right now. Check back soon.</div>';
+    return;
+  }
+    strip.innerHTML = matches.map(match => {
       const isLive = match.status.type === 'STATUS_IN_PROGRESS';
       const isFinished = match.status.completed;
       const isUpcoming = match.status.type === 'STATUS_SCHEDULED';
@@ -1547,15 +1581,35 @@ async function fetchLiveScores() {
         ${match.venue ? `<div class="score-venue">📍 ${match.venue}</div>` : ''}
       </div>`;
     }).join('');
-    
-  } catch(e) {
-    console.log('Scores error:', e);
-  }
 }
 
-// Fetch scores on load and every 30 seconds
+// Fetch scores on load
 fetchLiveScores();
-setInterval(fetchLiveScores, 30 * 1000);
+
+// Smart refresh — 5 seconds during live match, 60 seconds otherwise
+let scoresInterval = setInterval(fetchLiveScores, 60 * 1000);
+
+async function smartScoresRefresh() {
+  try {
+    const res = await fetch('/api/livescores');
+    const data = await res.json();
+    if (!data.success) return;
+    
+    const hasLive = data.matches.some(m => m.status.type === 'STATUS_IN_PROGRESS');
+    
+    clearInterval(scoresInterval);
+    if (hasLive) {
+      // Live match happening — refresh every 5 seconds
+      scoresInterval = setInterval(fetchLiveScores, 5 * 1000);
+    } else {
+      // No live match — refresh every 60 seconds
+      scoresInterval = setInterval(fetchLiveScores, 60 * 1000);
+    }
+  } catch(e) {}
+}
+
+// Check every minute if a live match has started
+setInterval(smartScoresRefresh, 60 * 1000);
 
 </script>
 
