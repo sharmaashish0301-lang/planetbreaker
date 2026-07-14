@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanetBreaker — Full Feed</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#FAF7F2;--ivory-dark:#F0EBE1;--charcoal:#1A1A2E;--crimson:#C0392B;--green:#27AE60;--border:#E8E2D9;--shadow:0 2px 16px rgba(26,26,46,0.07);--shadow-hover:0 8px 36px rgba(26,26,46,0.14);--text-primary:#1A1A2E;--text-secondary:#5A5A7A;--text-muted:#9A9AB0;--card-bg:#FFFFFF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-primary);}
+
+.navbar{background:var(--ivory);border-bottom:2px solid var(--charcoal);position:sticky;top:0;z-index:99;padding:0 40px;}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{font-family:'Playfair Display',serif;font-size:27px;font-weight:900;color:var(--charcoal);text-decoration:none;}
+.nav-links{display:flex;align-items:center;gap:0;list-style:none;}
+.nav-links li a{display:block;padding:0 16px;height:64px;line-height:64px;font-size:12px;font-weight:600;color:var(--text-secondary);text-decoration:none;text-transform:uppercase;transition:color 0.2s;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.nav-links li a:hover{color:var(--charcoal);}
+.nav-links li a.active{color:var(--charcoal);border-bottom-color:var(--crimson);}
+
+.feed-header{max-width:1440px;margin:0 auto;padding:36px 40px 24px;}
+.feed-title{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--charcoal);margin-bottom:6px;}
+.feed-sub{font-size:14px;color:var(--text-secondary);}
+
+.filter-bar{max-width:1440px;margin:0 auto;padding:0 40px 24px;display:flex;gap:8px;flex-wrap:wrap;}
+.f-pill{padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-family:'Inter',sans-serif;transition:all 0.2s;}
+.f-pill:hover{border-color:var(--charcoal);color:var(--charcoal);}
+.f-pill.active{background:var(--charcoal);border-color:var(--charcoal);color:white;}
+.f-pill.world.active{background:#2471A3;border-color:#2471A3;}
+.f-pill.finance.active{background:var(--crimson);border-color:var(--crimson);}
+.f-pill.sports.active{background:#27AE60;border-color:#27AE60;}
+.f-pill.auto.active{background:#8E44AD;border-color:#8E44AD;}
+.f-pill.entertainment.active{background:#E67E22;border-color:#E67E22;}
+
+.feed-grid{max-width:1440px;margin:0 auto;padding:0 40px 60px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+
+.nc{background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:transform 0.22s,box-shadow 0.22s;}
+.nc:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);}
+.nc-image{height:160px;overflow:hidden;position:relative;background:var(--ivory-dark);display:flex;align-items:center;justify-content:center;}
+.nc-image img{width:100%;height:160px;object-fit:cover;display:block;}
+.nc-placeholder{font-size:40px;opacity:0.25;}
+.nc-badge{position:absolute;top:10px;left:10px;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:3px;color:white;}
+.nc-body{padding:16px;}
+.nc-cat{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.nc-headline{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--charcoal);line-height:1.35;margin-bottom:8px;}
+.nc-footer{display:flex;align-items:center;justify-content:space-between;}
+.nc-time{font-size:10px;color:var(--text-muted);}
+.nc-source{font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:3px;background:var(--ivory-dark);color:var(--text-secondary);}
+
+.load-more{display:block;margin:0 auto 60px;padding:12px 32px;background:var(--charcoal);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
+.load-more:hover{background:var(--crimson);}
+.load-more:disabled{background:var(--border);color:var(--text-muted);cursor:default;}
+
+.empty{grid-column:span 4;text-align:center;padding:80px 20px;color:var(--text-muted);}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+
+@media(max-width:1024px){.feed-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:768px){
+  .navbar{padding:0 16px;}
+  .nav-links{display:none;}
+  .feed-header{padding:24px 16px 16px;}
+  .feed-title{font-size:26px;}
+  .filter-bar{padding:0 16px 16px;}
+  .feed-grid{grid-template-columns:repeat(2,1fr);padding:0 16px 40px;gap:14px;}
+}
+@media(max-width:480px){.feed-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="logo">PlanetBreaker</a>
+    <ul class="nav-links">
+      <li><a href="/">🏠 Home</a></li>
+      <li><a href="/category.html?cat=world">🌍 World</a></li>
+      <li><a href="/category.html?cat=finance">📈 Finance</a></li>
+      <li><a href="/category.html?cat=sports">⚽ Sports</a></li>
+      <li><a href="/category.html?cat=auto">🚗 Auto</a></li>
+      <li><a href="/category.html?cat=entertainment">🎬 Entertainment</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="feed-header">
+  <div class="feed-title">📰 Full Feed</div>
+  <div class="feed-sub" id="feedSub">Loading latest stories from around the world...</div>
+</div>
+
+<div class="filter-bar">
+  <button class="f-pill active" onclick="filterFeed('all', this)">🔥 All</button>
+  <button class="f-pill world" onclick="filterFeed('world', this)">🌍 World</button>
+  <button class="f-pill finance" onclick="filterFeed('finance', this)">📈 Finance</button>
+  <button class="f-pill sports" onclick="filterFeed('sports', this)">⚽ Sports</button>
+  <button class="f-pill auto" onclick="filterFeed('auto', this)">🚗 Auto</button>
+  <button class="f-pill entertainment" onclick="filterFeed('entertainment', this)">🎬 Entertainment</button>
+</div>
+
+<div class="feed-grid" id="feedGrid">
+  <div class="empty">
+    <div class="empty-icon">📰</div>
+    <div style="font-size:16px;font-weight:600;">Loading stories...</div>
+  </div>
+</div>
+
+<button class="load-more" id="loadMoreBtn" onclick="loadMore()" style="display:none;">Load More Stories</button>
+
+<script>
+const SUPABASE_URL = 'https://zjcwvnvnhyjjaoltybvj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV';
+
+const catColors = { world:'#2471A3', finance:'#C0392B', sports:'#27AE60', auto:'#8E44AD', entertainment:'#E67E22' };
+const catIcons = { world:'🌍', finance:'📈', sports:'⚽', auto:'🚗', entertainment:'🎬' };
+const catPlaceholders = { world:'🌐', finance:'📊', sports:'🏆', auto:'🏎️', entertainment:'🎭' };
+
+let currentCat = 'all';
+let offset = 0;
+let allArticles = [];
+const PAGE_SIZE = 40;
+
+function timeAgo(dateStr) {
+  if (!dateStr) return 'Just now';
+  const diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} hr ago`;
+  return `${Math.floor(diff/86400)} days ago`;
+}
+
+function renderCards(articles) {
+  if (!articles.length) {
+    document.getElementById('feedGrid').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">${catPlaceholders[currentCat] || '📰'}</div>
+        <div style="font-size:16px;font-weight:600;">No stories yet in this category</div>
+        <div style="font-size:13px;margin-top:8px;">Check back soon — updates every 5 minutes.</div>
+      </div>`;
+    document.getElementById('loadMoreBtn').style.display = 'none';
+    return;
+  }
+
+  const html = articles.map(a => {
+    const cat = a.category || 'world';
+    const color = catColors[cat] || '#C0392B';
+    const icon = catIcons[cat] || '📰';
+    const placeholder = catPlaceholders[cat] || '📰';
+    return `
+    <div class="nc" onclick="window.location.href='/article.html?id=${a.id}'">
+      <div class="nc-image">
+        ${a.image_url 
+          ? `<img src="${a.image_url}" alt="" onerror="this.parentElement.innerHTML='<div class=nc-placeholder>${placeholder}</div>'">`
+          : `<div class="nc-placeholder">${placeholder}</div>`}
+        <span class="nc-badge" style="background:${color};">${cat.toUpperCase()}</span>
+      </div>
+      <div class="nc-body">
+        <div class="nc-cat" style="color:${color};">${icon} ${cat.toUpperCase()}</div>
+        <div class="nc-headline">${a.title}</div>
+        <div class="nc-footer">
+          <span class="nc-time">🕐 ${timeAgo(a.published_at)}</span>
+          <span class="nc-source">${a.source || 'News'}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (offset === 0) {
+    document.getElementById('feedGrid').innerHTML = html;
+  } else {
+    document.getElementById('feedGrid').innerHTML += html;
+  }
+}
+
+async function loadFeed(cat, reset) {
+  if (reset) { offset = 0; allArticles = []; }
+
+  let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,category,source,image_url,published_at&order=published_at.desc&limit=${PAGE_SIZE}&offset=${offset}`;
+  if (cat && cat !== 'all') url += `&category=eq.${cat}`;
+
+  try {
+    const res = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+    const articles = await res.json();
+
+    allArticles = [...allArticles, ...articles];
+    renderCards(allArticles);
+
+    document.getElementById('feedSub').textContent = `${allArticles.length} stories loaded`;
+    
+    const loadBtn = document.getElementById('loadMoreBtn');
+    if (articles.length === PAGE_SIZE) {
+      loadBtn.style.display = 'block';
+      loadBtn.disabled = false;
+      offset += PAGE_SIZE;
+    } else {
+      loadBtn.style.display = allArticles.length > 0 ? 'block' : 'none';
+      loadBtn.textContent = 'All stories loaded';
+      loadBtn.disabled = true;
+    }
+  } catch(e) {
+    document.getElementById('feedGrid').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div>Failed to load. Please refresh.</div></div>`;
+  }
+}
+
+function filterFeed(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.f-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  loadFeed(cat, true);
+}
+
+function loadMore() {
+  document.getElementById('loadMoreBtn').textContent = 'Loading...';
+  document.getElementById('loadMoreBtn').disabled = true;
+  loadFeed(currentCat, false);
+}
+
+// Check URL params for pre-selected category
+const urlCat = new URLSearchParams(window.location.search).get('cat');
+if (urlCat) {
+  currentCat = urlCat;
+  document.querySelectorAll('.f-pill').forEach(p => {
+    p.classList.remove('active');
+    if (p.textContent.toLowerCase().includes(urlCat)) p.classList.add('active');
+  });
+}
+
+loadFeed(currentCat, true);
+</script>
+</body>
+</html>
