@@ -667,7 +667,6 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
     <div class="sh">
       <div class="sh-left">
         <div class="sh-title">Latest Stories</div>
-        <span class="sh-count">247</span>
       </div>
       <a href="/feed.html" class="sh-link">Full Feed →</a>
     </div>
@@ -1105,9 +1104,7 @@ function updateNewsGrid(articles) {
   <div class="nc wide" data-article-id="${top.id}" style="cursor:pointer;">
     <div class="nc-left">
       <div class="nc-accent ${topCat}"></div>
-      <div class="nc-visual" style="height:240px;${top.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#1A0808,#2D1515);'}">
-        ${top.image_url ? `<img src="${top.image_url}" style="width:100%;height:240px;object-fit:cover;opacity:0.85;display:block;" onerror="this.style.display='none'">` : `<span class="nc-big-num dn" style="font-size:28px;text-align:center;padding:10px;">${top.source || 'Breaking'}</span>`}
-        <span class="nc-big-icon" style="${top.image_url ? 'display:none' : ''}">${catEmojis[topCat] || '📰'}</span>
+      <div class="nc-visual" id="wideCardVisual" style="height:240px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1A0808,#2D1515);">
         <span class="nc-badge nb-breaking">Breaking</span>
       </div>
     </div>
@@ -1132,8 +1129,8 @@ function updateNewsGrid(articles) {
     html += `
     <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
-      <div class="nc-visual" style="height:180px;${article.image_url ? 'padding:0;background:#000;' : 'background:linear-gradient(135deg,#0D0D1F,#1A1A3A);'}">
-        ${article.image_url ? `<img src="${article.image_url}" style="width:100%;height:180px;object-fit:cover;opacity:0.85;display:block;" onerror="this.style.display='none'">` : `<span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>`}
+      <div class="nc-visual" style="height:180px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0D0D1F,#1A1A3A);" data-img="${article.image_url || ''}">
+        <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
         <span class="nc-badge nb-alert">${cat}</span>
       </div>
       <div class="nc-body">
@@ -1149,6 +1146,18 @@ function updateNewsGrid(articles) {
   });
 
   grid.innerHTML = html;
+  
+  // Inject images after render (avoids nested template literal issues)
+  grid.querySelectorAll('[data-img]').forEach(el => {
+    const imgUrl = el.getAttribute('data-img');
+    if (imgUrl) {
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85;';
+      img.onerror = () => img.remove();
+      el.insertBefore(img, el.firstChild);
+    }
+  });
 }
 
 function updateLiveFeed(articles) {
@@ -1325,11 +1334,24 @@ function updateHero(articles) {
   if (heroSection) {
     heroSection.setAttribute('data-article-id', top.id);
     if (top.image_url) {
-      heroSection.style.backgroundImage = `url(${top.image_url})`;
+      heroSection.style.backgroundImage = 'url(' + top.image_url + ')';
       heroSection.style.backgroundSize = 'cover';
       heroSection.style.backgroundPosition = 'center';
       heroSection.style.backgroundBlendMode = 'overlay';
       heroSection.style.backgroundColor = 'rgba(26,26,46,0.88)';
+    }
+  }
+  
+  // Inject wide card image
+  const wideVisual = document.getElementById('wideCardVisual');
+  if (wideVisual && top.image_url) {
+    const existing = wideVisual.querySelector('img');
+    if (!existing) {
+      const img = document.createElement('img');
+      img.src = top.image_url;
+      img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85;';
+      img.onerror = () => img.remove();
+      wideVisual.insertBefore(img, wideVisual.firstChild);
     }
   }
 
