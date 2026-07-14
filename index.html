@@ -1130,7 +1130,7 @@ function updateNewsGrid(articles) {
     <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
       <div class="nc-visual" style="height:180px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0D0D1F,#1A1A3A);" data-img="${article.image_url || ''}">
-        <span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
+        ${article.image_url ? '' : `<span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>`}
         <span class="nc-badge nb-alert">${cat}</span>
       </div>
       <div class="nc-body">
