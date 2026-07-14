@@ -99,6 +99,14 @@ body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-pri
 .match-time{font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;}
 .match-round{font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px;border-top:1px solid var(--border);padding-top:6px;}
 @media(max-width:768px){.upcoming-section{padding:0 16px 32px;}.matches-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* Cricinfo Widget */
+.cricinfo-widget-section { max-width:1440px; margin:0 auto; padding:0 40px 24px; }
+.cricinfo-widget-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.cricinfo-widget-title { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--charcoal); display:flex; align-items:center; gap:8px; }
+.cricinfo-iframe-wrap { border-radius:10px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow); background:white; }
+@media(max-width:768px){ .cricinfo-widget-section{ padding:0 16px 16px; } }
+
 </style>
 </head>
 <body>
@@ -118,7 +126,41 @@ body{font-family:'Inter',sans-serif;background:var(--ivory);color:var(--text-pri
 </nav>
 
 
-<div id="upcomingSection" style="display:none;"><div class="upcoming-section"><div class="upcoming-title">🏆 Live &amp; Upcoming Matches</div><div class="matches-grid" id="matchesGrid"><div style="grid-column:span 4;text-align:center;padding:30px;color:var(--text-muted);">Loading matches...</div></div></div></div>
+
+<div id="cricinfoWidget" style="display:none;">
+  <div class="cricinfo-widget-section">
+    <div class="cricinfo-widget-header">
+      <div class="cricinfo-widget-title">🏏 Live Cricket Scores <span style="background:#E74C3C;color:white;font-size:9px;font-weight:800;padding:2px 8px;border-radius:3px;margin-left:4px;">LIVE</span></div>
+      <a href="https://www.espncricinfo.com/live-cricket-score" target="_blank" style="font-size:11px;font-weight:700;color:var(--crimson);text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">Full Scores on Cricinfo →</a>
+    </div>
+    <div class="cricinfo-iframe-wrap">
+      <!-- Official Cricinfo Live Scores Widget -->
+      <iframe 
+        src="https://www.espncricinfo.com/widgets/livescores_widget.html" 
+        width="100%" 
+        height="300" 
+        frameborder="0" 
+        scrolling="auto"
+        title="Live Cricket Scores by ESPNcricinfo"
+        style="display:block;"
+        loading="lazy">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<div id="upcomingSection" style="display:none;max-width:1440px;margin:0 auto;padding:0 40px 24px;">
+  <div onclick="toggleMatches()" style="display:flex;align-items:center;justify-content:space-between;background:var(--charcoal);color:white;padding:14px 20px;border-radius:10px;cursor:pointer;user-select:none;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;">🏆 Live & Upcoming Matches</span>
+      <span id="liveMatchCount" style="background:#E74C3C;color:white;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;display:none;">0 LIVE</span>
+    </div>
+    <span id="matchesToggleIcon" style="font-size:18px;transition:transform 0.3s;">▼</span>
+  </div>
+  <div id="matchesDropdown" style="display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;">
+    <div class="matches-grid" id="matchesGrid" style="padding:16px;"><div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);">Loading matches...</div></div>
+  </div>
+</div>
 <div class="cat-header">
   <div class="cat-title" id="catTitle">Loading...</div>
   <div class="cat-subtitle" id="catSubtitle"></div>
@@ -213,9 +255,20 @@ async function loadCategory() {
 
 loadCategory();
 
+function toggleMatches() {
+  const dropdown = document.getElementById('matchesDropdown');
+  const icon = document.getElementById('matchesToggleIcon');
+  const isOpen = dropdown.style.display !== 'none';
+  dropdown.style.display = isOpen ? 'none' : 'block';
+  icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
 async function loadMatches() {
   const urlCat = new URLSearchParams(window.location.search).get('cat');
   if (urlCat !== 'sports') return;
+  
+  // Show Cricinfo live widget
+  document.getElementById('cricinfoWidget').style.display = 'block';
   try {
     const res = await fetch('/api/livescores');
     const data = await res.json();
@@ -225,6 +278,16 @@ async function loadMatches() {
     document.getElementById('upcomingSection').style.display = 'block';
     const grid = document.getElementById('matchesGrid');
     const formatDate = d => new Date(d).toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric'}) + ' · ' + new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+    // Auto-open dropdown if live match, otherwise keep closed
+    const hasLive = relevant.some(m => m.status.type === 'STATUS_IN_PROGRESS');
+    const liveCount = relevant.filter(m => m.status.type === 'STATUS_IN_PROGRESS').length;
+    if (hasLive) {
+      document.getElementById('matchesDropdown').style.display = 'block';
+      document.getElementById('matchesToggleIcon').style.transform = 'rotate(180deg)';
+      const badge = document.getElementById('liveMatchCount');
+      badge.textContent = liveCount + ' LIVE';
+      badge.style.display = 'inline';
+    }
     grid.innerHTML = relevant.map(m => {
       const isLive = m.status.type === 'STATUS_IN_PROGRESS';
       const score = (m.home.score != null && m.away.score != null) ? m.home.score + ' - ' + m.away.score : '';
