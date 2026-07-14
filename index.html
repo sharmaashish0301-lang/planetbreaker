@@ -485,58 +485,6 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
 <body>
 
 <!-- TICKER ROW 1: World > Region > Finance > Entertainment > Sports > Auto > Trending -->
-<div class="ticker-wrap">
-  <div class="ticker-row">
-    <div class="ticker-label">🌍 Breaking</div>
-    <div style="overflow:hidden;flex:1;">
-      <div class="ticker-track">
-        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">Iran nuclear talks collapse — US imposes fresh sanctions</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">G7 emergency summit called over Ukraine ceasefire breakdown</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat fin">Finance</span>NIFTY 50 <span class="dn">▼ 23,847 (-1.2%)</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat fin">Finance</span>S&P 500 <span class="up">▲ 5,891 (+0.4%)</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat fin">Finance</span>GOLD <span class="up">▲ $2,387 (+0.6%)</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat ent">Ent</span><span class="breaking-text">Netflix drops surprise season — 40M streams in 24 hours</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat sports">Sports</span><span class="breaking-text">India vs Australia — IND 287/4 at stumps, Day 2</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat auto">Auto</span><span class="breaking-text">Tata Curvv EV breaks monthly sales record — 12,400 units</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat fin">Finance</span>HDFC Bank <span class="dn">▼ 52W LOW hit ₹1,723</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">WHO declares new health emergency — Southeast Asia</span></span>
-        <!-- duplicate -->
-        <span class="t-item"><span class="t-cat world">World</span><span class="breaking-text">Iran nuclear talks collapse — US imposes fresh sanctions</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat fin">Finance</span>NIFTY 50 <span class="dn">▼ 23,847 (-1.2%)</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat ent">Ent</span><span class="breaking-text">Netflix drops surprise season — 40M streams in 24 hours</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat sports">Sports</span><span class="breaking-text">India vs Australia — IND 287/4 at stumps, Day 2</span></span>
-        <span class="t-sep">|</span>
-        <span class="t-item"><span class="t-cat auto">Auto</span><span class="breaking-text">Tata Curvv EV breaks monthly sales record — 12,400 units</span></span>
-      </div>
-    </div>
-  </div>
-  <!-- ROW 2: Biggest breaking headline -->
-  <div class="ticker-row ticker-row-2">
-    <div class="ticker-label ticker-label-2">🔥 Top Story</div>
-    <div style="overflow:hidden;flex:1;">
-      <div class="ticker-track ticker-track-2">
-        <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">⚡ BREAKING: Adani Ports hits 52-week low after ₹8,200 crore deal collapse — stock down 18.4%, heaviest institutional sell-off of 2026</span>
-        <span class="t-sep" style="color:#333355;padding:0 40px;">————</span>
-        <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">⚡ BREAKING: Adani Ports hits 52-week low after ₹8,200 crore deal collapse — stock down 18.4%, heaviest institutional sell-off of 2026</span>
-        <span class="t-sep" style="color:#333355;padding:0 40px;">————</span>
-        <span class="t-item" style="color:#FFD700;font-weight:700;font-size:12px;">⚡ BREAKING: Adani Ports hits 52-week low after ₹8,200 crore deal collapse — stock down 18.4%, heaviest institutional sell-off of 2026</span>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="nav-inner">
@@ -554,11 +502,22 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
         <span class="region-flag" id="regionFlag">🌍</span>
         <span id="regionName">Detecting...</span>
       </div>
-      <button class="btn-save" onclick="openSaved()">🔖 Saved <span id="savedCount" style="background:var(--crimson);color:white;border-radius:10px;padding:1px 7px;font-size:10px;">3</span></button>
-      <button class="btn-alerts">🔔 Alerts</button>
     </div>
   </div>
 </nav>
+
+
+
+<!-- ── LIVE SCORES BAR — right after navbar ── -->
+<div id="liveScoresBar" style="display:none;background:var(--charcoal);border-bottom:1px solid rgba(255,255,255,0.1);padding:8px 40px;overflow:hidden;">
+  <div style="max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:12px;">
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+      <div style="width:7px;height:7px;background:#E74C3C;border-radius:50%;animation:blink 1s ease-in-out infinite;"></div>
+      <span style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#E74C3C;">Live</span>
+    </div>
+    <div id="liveScoresStrip" style="display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -676,21 +635,6 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
   </div>
 </div>
 
-
-<!-- ── LIVE SCORES WIDGET ── -->
-<div class="scores-section" id="scoresSection" style="display:none;">
-  <div class="scores-header">
-    <div class="scores-title">
-      🏆 Live Scores
-      <div class="live-indicator"><div class="live-dot-red"></div> Live</div>
-    </div>
-    <a href="/category.html?cat=sports" style="font-size:11px;font-weight:700;color:var(--crimson);text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">All Sports →</a>
-  </div>
-  <div id="sportsTabs" style="display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
-  <div class="scores-strip" id="scoresStrip">
-    <div class="scores-loading">Loading live scores...</div>
-  </div>
-</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -1490,97 +1434,46 @@ async function fetchLiveScores() {
   try {
     const res = await fetch('/api/livescores');
     const data = await res.json();
-    if (!data.success || !data.matches.length) return;
-    
-    const section = document.getElementById('scoresSection');
-    const strip = document.getElementById('scoresStrip');
-    if (!section || !strip) return;
-    
-    section.style.display = 'block';
-    
-    const formatTime = (dateStr) => {
-      const d = new Date(dateStr);
-      return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-    };
-    
-    // Build sport filter tabs
-    const tabs = document.getElementById('sportsTabs');
-    if (tabs) {
-      const sports = [...new Set(data.matches.map(m => m.sport))];
-      tabs.innerHTML = `<button onclick="filterScores('all', this)" style="padding:5px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--charcoal);color:white;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">All</button>` +
-        sports.map(s => `<button onclick="filterScores('${s}', this)" style="padding:5px 12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">${s}</button>`).join('');
+    if (!data.success) return;
+
+    // ONLY show live matches — nothing else
+    const liveMatches = data.matches.filter(m => m.status.type === 'STATUS_IN_PROGRESS');
+
+    const bar = document.getElementById('liveScoresBar');
+    const strip = document.getElementById('liveScoresStrip');
+    if (!bar || !strip) return;
+
+    if (!liveMatches.length) {
+      bar.style.display = 'none';
+      return;
     }
-    
-    window._allMatches = data.matches;
-    renderScores(data.matches);
+
+    bar.style.display = 'block';
+
+    strip.innerHTML = liveMatches.map(match => {
+      const score = `${match.home.score ?? '-'} - ${match.away.score ?? '-'}`;
+      const clock = match.status.clock ? `${match.status.clock}'` : 'LIVE';
+      return `<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;white-space:nowrap;cursor:pointer;flex-shrink:0;" onclick="window.location.href='/category.html?cat=sports'">
+        <span style="font-size:11px;color:#8888AA;">${match.sport}</span>
+        <span style="font-size:12px;font-weight:700;color:white;">${match.home.shortName || match.home.name}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#F39C12;">${score}</span>
+        <span style="font-size:12px;font-weight:700;color:white;">${match.away.shortName || match.away.name}</span>
+        <span style="font-size:10px;font-weight:700;color:#E74C3C;">${clock}</span>
+      </div>`;
+    }).join('');
+
   } catch(e) {
     console.log('Scores error:', e);
   }
 }
 
-function filterScores(sport, btn) {
-  document.querySelectorAll('#sportsTabs button').forEach(b => {
-    b.style.background = 'transparent';
-    b.style.color = 'var(--text-secondary)';
-  });
-  btn.style.background = 'var(--charcoal)';
-  btn.style.color = 'white';
-  const matches = sport === 'all' ? window._allMatches : window._allMatches.filter(m => m.sport === sport);
-  renderScores(matches);
-}
-
 function renderScores(matches) {
-  const strip = document.getElementById('scoresStrip');
+  const strip = document.getElementById('liveScoresStrip');
   if (!strip) return;
   if (!matches.length) {
-    strip.innerHTML = '<div class="scores-empty">No matches scheduled right now. Check back soon.</div>';
     return;
   }
-    strip.innerHTML = matches.map(match => {
-      const isLive = match.status.type === 'STATUS_IN_PROGRESS';
-      const isFinished = match.status.completed;
-      const isUpcoming = match.status.type === 'STATUS_SCHEDULED';
-      
-      const homeScore = match.home.score || '';
-      const awayScore = match.away.score || '';
-      const scoreDisplay = (homeScore !== '' && awayScore !== '') 
-        ? `${homeScore} - ${awayScore}` 
-        : isUpcoming ? formatTime(match.date) : '- -';
-      
-      const statusText = isLive ? (match.status.clock || 'LIVE') 
-        : isFinished ? 'FT' 
-        : isUpcoming ? 'Upcoming' : match.status.detail || '';
-      
-      const statusClass = isLive ? 'live' : isFinished ? 'ft' : 'upcoming';
-      const cardClass = isLive ? 'live-match' : isFinished ? 'finished' : '';
-      
-      const homeLogo = match.home.logo 
-        ? `<img class="score-team-logo" src="${match.home.logo}" onerror="this.style.display='none'">`
-        : `<div class="score-team-logo-placeholder">🏴</div>`;
-      const awayLogo = match.away.logo
-        ? `<img class="score-team-logo" src="${match.away.logo}" onerror="this.style.display='none'">`
-        : `<div class="score-team-logo-placeholder">🏴</div>`;
-      
-      return `
-      <div class="score-card ${cardClass}">
-        <div class="score-round">${match.round || 'FIFA World Cup 2026'}</div>
-        <div class="score-teams">
-          <div class="score-team">
-            ${homeLogo}
-            <div class="score-team-name ${match.home.winner ? 'winner' : ''}">${match.home.shortName || match.home.name}</div>
-          </div>
-          <div class="score-middle">
-            <div class="score-result">${scoreDisplay}</div>
-            <div class="score-status ${statusClass}">${statusText}</div>
-          </div>
-          <div class="score-team">
-            ${awayLogo}
-            <div class="score-team-name ${match.away.winner ? 'winner' : ''}">${match.away.shortName || match.away.name}</div>
-          </div>
-        </div>
-        ${match.venue ? `<div class="score-venue">📍 ${match.venue}</div>` : ''}
-      </div>`;
-    }).join('');
+  // renderScores handled by fetchLiveScores
 }
 
 // Fetch scores on load
