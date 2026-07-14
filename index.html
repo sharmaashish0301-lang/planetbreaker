@@ -1130,7 +1130,7 @@ function updateNewsGrid(articles) {
     <div class="nc" data-article-id="${article.id}" style="cursor:pointer;">
       <div class="nc-accent ${cat}"></div>
       <div class="nc-visual" style="height:180px;position:relative;overflow:hidden;background:linear-gradient(135deg,#0D0D1F,#1A1A3A);" data-img="${article.image_url || ''}">
-        ${article.image_url ? '' : `<span class="nc-big-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>`}
+        <span class="nc-big-icon nc-placeholder-icon" style="position:relative;font-size:48px;opacity:0.8;">${catEmojis[cat] || '📰'}</span>
         <span class="nc-badge nb-alert">${cat}</span>
       </div>
       <div class="nc-body">
@@ -1153,7 +1153,12 @@ function updateNewsGrid(articles) {
     if (imgUrl) {
       const img = document.createElement('img');
       img.src = imgUrl;
-      img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85;';
+      img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85;z-index:1;';
+      img.onload = () => {
+        // Hide placeholder emoji when image loads successfully
+        const placeholder = el.querySelector('.nc-placeholder-icon');
+        if (placeholder) placeholder.style.display = 'none';
+      };
       img.onerror = () => img.remove();
       el.insertBefore(img, el.firstChild);
     }
