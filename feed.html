@@ -170,33 +170,44 @@ function renderCards(articles) {
   }
 }
 
-async function loadFeed(cat, reset) {
-  if (reset) { offset = 0; allArticles = []; }
+let lastPublishedAt = null; // cursor for pagination
 
-  let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,category,source,image_url,published_at&order=published_at.desc&limit=${PAGE_SIZE}&offset=${offset}`;
+async function loadFeed(cat, reset) {
+  if (reset) { lastPublishedAt = null; allArticles = []; }
+
+  // Use cursor-based pagination — no duplicates on Load More
+  let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,category,source,image_url,published_at&order=published_at.desc&limit=${PAGE_SIZE}`;
   if (cat && cat !== 'all') url += `&category=eq.${cat}`;
+  if (lastPublishedAt) url += `&published_at=lt.${encodeURIComponent(lastPublishedAt)}`;
 
   try {
     const res = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
     const articles = await res.json();
 
-    allArticles = [...allArticles, ...articles];
-    renderCards(allArticles);
+    if (!Array.isArray(articles)) throw new Error('Invalid response');
 
+    allArticles = [...allArticles, ...articles];
+    
+    // Update cursor to last article's published_at
+    if (articles.length > 0) {
+      lastPublishedAt = articles[articles.length - 1].published_at;
+    }
+
+    renderCards(allArticles);
     document.getElementById('feedSub').textContent = `${allArticles.length} stories loaded`;
     
     const loadBtn = document.getElementById('loadMoreBtn');
     if (articles.length === PAGE_SIZE) {
       loadBtn.style.display = 'block';
       loadBtn.disabled = false;
-      offset += PAGE_SIZE;
+      loadBtn.textContent = 'Load More Stories';
     } else {
       loadBtn.style.display = allArticles.length > 0 ? 'block' : 'none';
-      loadBtn.textContent = 'All stories loaded';
+      loadBtn.textContent = 'All stories loaded ✓';
       loadBtn.disabled = true;
     }
   } catch(e) {
-    document.getElementById('feedGrid').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div>Failed to load. Please refresh.</div></div>`;
+    document.getElementById('feedGrid').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div>Failed to load. Please refresh.</div></div>';
   }
 }
 
