@@ -75,8 +75,13 @@ body { font-family: 'Inter', sans-serif; background: var(--ivory); color: var(--
 
 /* Article Content */
 .article-content { font-size: 17px; line-height: 1.85; color: #2D2D44; margin-bottom: 32px; }
-.article-content p { margin-bottom: 20px; }
+.article-content p { margin-bottom: 24px; }
+.article-content p:first-child { font-size: 19px; font-weight: 500; color: var(--charcoal); line-height: 1.7; }
 .article-content strong { color: var(--charcoal); font-weight: 700; }
+.article-content em { font-style: italic; color: var(--text-secondary); }
+.article-content h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--charcoal); margin: 28px 0 12px; }
+.article-content ul, .article-content ol { margin: 0 0 20px 24px; }
+.article-content li { margin-bottom: 8px; line-height: 1.7; }
 .article-content .pull-quote { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--charcoal); border-left: 4px solid var(--crimson); padding: 16px 24px; margin: 28px 0; background: var(--ivory-dark); border-radius: 0 8px 8px 0; line-height: 1.4; }
 
 /* Source credit */
@@ -372,35 +377,45 @@ function renderArticle(article) {
   `;
 }
 
-// Expand short content into readable article
+// Render article content - handles HTML from Gemini
 function expandContent(raw) {
   if (!raw) return '<p>Full article content loading...</p>';
   
-  // Clean up content
+  // If content already has HTML tags (from Gemini with grounding), use as-is
+  if (raw.includes('<p>') || raw.includes('<strong>')) {
+    // Clean up any markdown artifacts
+    let html = raw
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^#{1,3} (.+)$/gm, '<h3 style="font-family:Playfair Display,serif;font-size:20px;font-weight:700;color:var(--charcoal);margin:24px 0 12px;">$1</h3>')
+      .trim();
+    return html;
+  }
+  
+  // Plain text - convert to proper paragraphs
   const clean = raw
     .replace(/\[\+\d+ chars\]/g, '')
-    .replace(/<[^>]*>/g, '')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .trim();
 
-  // Split into paragraphs
+  // Split by double newline or every 3 sentences
+  const blocks = clean.split(/\n\n+/);
+  if (blocks.length > 1) {
+    return blocks.map(b => b.trim() ? `<p>${b.trim()}</p>` : '').join('\n');
+  }
+
+  // Single block - split into sentences and group
   const sentences = clean.match(/[^.!?]+[.!?]+/g) || [clean];
-  
   let html = '';
-  let paraBuffer = [];
-  
-  sentences.forEach((sentence, i) => {
-    paraBuffer.push(sentence.trim());
-    // Every 3 sentences = new paragraph
-    if (paraBuffer.length === 3 || i === sentences.length - 1) {
-      html += `<p>${paraBuffer.join(' ')}</p>`;
-      paraBuffer = [];
-      // Add pull quote after first paragraph
-      if (i === 2 && sentences.length > 6) {
-        html += `<div class="pull-quote">"${sentences[1].trim()}"</div>`;
-      }
+  let buffer = [];
+  sentences.forEach((s, i) => {
+    buffer.push(s.trim());
+    if (buffer.length === 3 || i === sentences.length - 1) {
+      html += `<p>${buffer.join(' ')}</p>\n`;
+      buffer = [];
     }
   });
-
   return html || `<p>${clean}</p>`;
 }
 
