@@ -53,7 +53,7 @@ async function writeWithGemini(title, summary, category, source) {
 
   const prompt = `You are a professional news journalist writing for PlanetBreaker, a global breaking news website.
 
-Search the web for current, accurate information about this story, then write a complete 400-500 word news article.
+Write a complete 400-500 word news article based ONLY on the facts provided below.
 
 HEADLINE: ${title}
 CONTEXT: ${cleanSummary}
@@ -61,21 +61,19 @@ SOURCE: ${source}
 TOPIC: ${categoryContext[category] || 'general news'}
 
 CRITICAL RULES:
-- Use Google Search to find accurate, current facts about this story
-- NEVER invent statistics, quotes, names, or scores you are not certain about
-- If it is a sports match, search for the actual score, goal scorers, and key moments
-- If it is financial news, search for the actual numbers and figures
+- ONLY use facts that are explicitly stated in the CONTEXT above
+- NEVER invent scores, goal scorers, names, statistics or quotes not in the context
+- If context is limited, write what you know and keep it honest — do not pad with guesses
 - Write in HTML format with proper <p> tags for each paragraph
-- Use <strong> for important names, numbers, and key facts
+- Use <strong> for important names, numbers, and key facts  
 - Minimum 4 paragraphs, each in its own <p> tag
-- Start with the most important fact in the first sentence
-- Second paragraph: background and context
-- Third paragraph: details, reactions, implications
-- Fourth paragraph: what happens next / what to watch
+- First paragraph: the main news fact (most important info first)
+- Second paragraph: background and why this matters
+- Third paragraph: details and implications from the context
+- Fourth paragraph: what to watch next
 - Use "according to ${source}" when citing facts
-- End with a strong concluding sentence
 - Do NOT write "In conclusion" or "In summary"
-- Do NOT add "DEVELOPING STORY" unless this is clearly an active ongoing emergency
+- Do NOT add "DEVELOPING STORY" for completed events like match results
 
 Write the article now in HTML format:`;
 
@@ -90,9 +88,9 @@ Write the article now in HTML format:`;
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          tools: [{ googleSearch: {} }], // Enable Google Search grounding
+          tools: [{ googleSearch: {} }],
           generationConfig: {
-            temperature: 0.4, // Lower = more factual, less creative
+            temperature: 0.4,
             maxOutputTokens: 1500
           }
         })
@@ -258,6 +256,9 @@ export default async function handler(req, res) {
           results.push({ category: article.category, title: article.title });
           console.log('Saved:', article.category, article.title.substring(0, 40));
         }
+        
+        // 5 second delay between Gemini calls — stays under 15 RPM limit
+        await new Promise(r => setTimeout(r, 5000));
       }
     }
 
