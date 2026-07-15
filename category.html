@@ -273,7 +273,15 @@ async function loadMatches() {
     const res = await fetch('/api/livescores');
     const data = await res.json();
     if (!data.success) return;
-    const relevant = data.matches.filter(m => m.status.type === 'STATUS_IN_PROGRESS' || !m.status.completed);
+    const now = new Date();
+    const twoDaysFromNow = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+    const relevant = data.matches.filter(m => {
+      const matchDate = new Date(m.date);
+      if (m.status.type === 'STATUS_IN_PROGRESS') return true;
+      if (!m.status.completed && matchDate <= twoDaysFromNow) return true;
+      if (m.status.completed && matchDate.toDateString() === now.toDateString()) return true;
+      return false;
+    });
     if (!relevant.length) return;
     document.getElementById('upcomingSection').style.display = 'block';
     const grid = document.getElementById('matchesGrid');
