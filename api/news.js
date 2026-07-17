@@ -9,16 +9,12 @@ const GUARDIAN_SECTIONS = [
   { section: 'us-news',     category: 'world'         },
   { section: 'politics',    category: 'world'         },
   { section: 'business',    category: 'finance'       },
-  { section: 'money',       category: 'finance'       },
   { section: 'sport',       category: 'sports'        },
   { section: 'football',    category: 'sports'        },
   { section: 'cricket',     category: 'sports'        },
   { section: 'film',        category: 'entertainment' },
-  { section: 'music',       category: 'entertainment' },
   { section: 'technology',  category: 'world'         },
   { section: 'environment', category: 'world'         },
-  { section: 'science',     category: 'world'         },
-  { section: 'media',       category: 'entertainment' },
 ];
 
 // Smart category detector
@@ -229,7 +225,7 @@ export default async function handler(req, res) {
     for (const { section, category } of GUARDIAN_SECTIONS) {
       const articles = await fetchFromGuardian(section, category);
 
-      for (const article of articles.slice(0, 2)) {
+      for (const article of articles.slice(0, 1)) {
         if (!article.title || !article.url) continue;
         if (article.summary.length < 20) {
           console.log('Skipping empty article:', article.title.substring(0, 50));
@@ -260,8 +256,8 @@ export default async function handler(req, res) {
           console.log('Saved:', article.category, article.title.substring(0, 40));
         }
         
-        // 8 second delay between Gemini calls — safely under 15 RPM limit
-        await new Promise(r => setTimeout(r, 8000));
+        // 5 second delay — 10 sections × 5s = 50s, well under 60s timeout, 12 RPM safe
+        await new Promise(r => setTimeout(r, 5000));
       }
     }
 
