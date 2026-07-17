@@ -74,6 +74,9 @@ CRITICAL RULES:
 - Use "according to ${source}" when citing facts
 - Do NOT write "In conclusion" or "In summary"
 - Do NOT add "DEVELOPING STORY" for completed events like match results
+- Do NOT assign political titles like "former", "current", "ex-" to any politician — just use their name
+- Do NOT state who holds any political office — just refer to them by name only
+- Do NOT invent relationships, positions, or roles not explicitly stated in the CONTEXT
 
 Write the article now in HTML format:`;
 
@@ -226,7 +229,7 @@ export default async function handler(req, res) {
     for (const { section, category } of GUARDIAN_SECTIONS) {
       const articles = await fetchFromGuardian(section, category);
 
-      for (const article of articles.slice(0, 3)) {
+      for (const article of articles.slice(0, 2)) {
         if (!article.title || !article.url) continue;
         if (article.summary.length < 20) {
           console.log('Skipping empty article:', article.title.substring(0, 50));
@@ -257,8 +260,8 @@ export default async function handler(req, res) {
           console.log('Saved:', article.category, article.title.substring(0, 40));
         }
         
-        // 5 second delay between Gemini calls — stays under 15 RPM limit
-        await new Promise(r => setTimeout(r, 5000));
+        // 8 second delay between Gemini calls — safely under 15 RPM limit
+        await new Promise(r => setTimeout(r, 8000));
       }
     }
 
