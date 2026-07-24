@@ -508,17 +508,6 @@ footer{background:var(--charcoal);color:#5555AA;padding:48px 40px 0;}
 
 
 
-<!-- ── LIVE SCORES BAR — right after navbar ── -->
-<div id="liveScoresBar" style="display:none;background:var(--charcoal);border-bottom:1px solid rgba(255,255,255,0.1);padding:8px 40px;overflow:hidden;">
-  <div style="max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:12px;">
-    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-      <div style="width:7px;height:7px;background:#E74C3C;border-radius:50%;animation:blink 1s ease-in-out infinite;"></div>
-      <span style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#E74C3C;">Live</span>
-    </div>
-    <div id="liveScoresStrip" style="display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
-  </div>
-</div>
-
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -1062,6 +1051,11 @@ async function fetchNews() {
     // Step 2: Trigger background fetch for new articles (silent)
     fetch(`${API_BASE}/api/news`).catch(() => {});
     
+    // Also trigger RSS writer Edge Function for multi-source articles
+    fetch('https://zjcwvnvnhyjjaoltybvj.supabase.co/functions/v1/rss-writer', {
+      headers: { 'apikey': 'sb_publishable_vO3UIcMpHAAJB-T156vokg_048UDcSV' }
+    }).catch(() => {});
+    
   } catch(e) {
     console.log('News fetch error:', e);
   }
@@ -1429,80 +1423,6 @@ setInterval(initLiveData, 5 * 60 * 1000);
 // Refresh news ticker every 2 minutes
 setInterval(fetchNews, 2 * 60 * 1000);
 
-// ── LIVE SCORES ──
-async function fetchLiveScores() {
-  try {
-    const res = await fetch('/api/livescores');
-    const data = await res.json();
-    if (!data.success) return;
-
-    // ONLY show live matches — nothing else
-    const liveMatches = data.matches.filter(m => m.status.type === 'STATUS_IN_PROGRESS');
-
-    const bar = document.getElementById('liveScoresBar');
-    const strip = document.getElementById('liveScoresStrip');
-    if (!bar || !strip) return;
-
-    if (!liveMatches.length) {
-      bar.style.display = 'none';
-      return;
-    }
-
-    bar.style.display = 'block';
-
-    strip.innerHTML = liveMatches.map(match => {
-      const score = `${match.home.score ?? '-'} - ${match.away.score ?? '-'}`;
-      const clock = match.status.clock ? `${match.status.clock}'` : 'LIVE';
-      return `<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;white-space:nowrap;cursor:pointer;flex-shrink:0;" onclick="window.location.href='/category.html?cat=sports'">
-        <span style="font-size:11px;color:#8888AA;">${match.sport}</span>
-        <span style="font-size:12px;font-weight:700;color:white;">${match.home.shortName || match.home.name}</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#F39C12;">${score}</span>
-        <span style="font-size:12px;font-weight:700;color:white;">${match.away.shortName || match.away.name}</span>
-        <span style="font-size:10px;font-weight:700;color:#E74C3C;">${clock}</span>
-      </div>`;
-    }).join('');
-
-  } catch(e) {
-    console.log('Scores error:', e);
-  }
-}
-
-function renderScores(matches) {
-  const strip = document.getElementById('liveScoresStrip');
-  if (!strip) return;
-  if (!matches.length) {
-    return;
-  }
-  // renderScores handled by fetchLiveScores
-}
-
-// Fetch scores on load
-fetchLiveScores();
-
-// Smart refresh — 5 seconds during live match, 60 seconds otherwise
-let scoresInterval = setInterval(fetchLiveScores, 60 * 1000);
-
-async function smartScoresRefresh() {
-  try {
-    const res = await fetch('/api/livescores');
-    const data = await res.json();
-    if (!data.success) return;
-    
-    const hasLive = data.matches.some(m => m.status.type === 'STATUS_IN_PROGRESS');
-    
-    clearInterval(scoresInterval);
-    if (hasLive) {
-      // Live match happening — refresh every 5 seconds
-      scoresInterval = setInterval(fetchLiveScores, 5 * 1000);
-    } else {
-      // No live match — refresh every 60 seconds
-      scoresInterval = setInterval(fetchLiveScores, 60 * 1000);
-    }
-  } catch(e) {}
-}
-
-// Check every minute if a live match has started
-setInterval(smartScoresRefresh, 60 * 1000);
 
 </script>
 
